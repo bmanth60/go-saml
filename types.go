@@ -208,6 +208,7 @@ type Assertion struct {
 	Subject            Subject
 	Conditions         Conditions
 	AttributeStatement AttributeStatement
+	AuthnStatement     AuthnStatement `xml:"AuthnStatement,omitempty"`
 }
 
 type Conditions struct {
@@ -267,4 +268,12 @@ type Attribute struct {
 type AttributeStatement struct {
 	XMLName    xml.Name
 	Attributes []Attribute `xml:"Attribute"`
+}
+
+type AuthnStatement struct {
+	XMLName             xml.Name
+	AuthnInstant        string                `xml:",attr,omitempty"`
+	SessionIndex        string                `xml:",attr,omitempty"`
+	SessionNotOnOrAfter string                `xml:",attr,omitempty"`
+	AuthnContext        RequestedAuthnContext `xml:"AuthnContext"`
 }
