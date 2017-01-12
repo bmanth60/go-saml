@@ -7,10 +7,13 @@ import "github.com/bmanth60/go-saml/util"
 // then configure multiple instances of this module
 type ServiceProviderSettings struct {
 	PublicCertPath              string
+	PublicCertString            string
 	PrivateKeyPath              string
+	PrivateKeyString            string
 	IDPSSOURL                   string
 	IDPSSODescriptorURL         string
 	IDPPublicCertPath           string
+	IDPPublicCertString         string
 	AssertionConsumerServiceURL string
 	SPSignRequest               bool
 
@@ -30,23 +33,42 @@ func (s *ServiceProviderSettings) Init() (err error) {
 	s.hasInit = true
 
 	if s.SPSignRequest {
+		s.loadSPCertificate()
+	}
+
+	if s.IDPPublicCertString != "" {
+		s.iDPPublicCert = util.LoadCertificateFromString(s.IDPPublicCertString)
+	} else {
+		s.iDPPublicCert, err = util.LoadCertificate(s.IDPPublicCertPath)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	return nil
+}
+
+//loadSPCertificate load service provider certificate into settings object
+func (s *ServiceProviderSettings) loadSPCertificate() {
+	var err error
+
+	if s.PublicCertString != "" {
+		s.publicCert = util.LoadCertificateFromString(s.PublicCertString)
+	} else {
 		s.publicCert, err = util.LoadCertificate(s.PublicCertPath)
 		if err != nil {
 			panic(err)
 		}
+	}
 
+	if s.PrivateKeyString != "" {
+		s.privateKey = util.LoadCertificateFromString(s.PrivateKeyString)
+	} else {
 		s.privateKey, err = util.LoadCertificate(s.PrivateKeyPath)
 		if err != nil {
 			panic(err)
 		}
 	}
-
-	s.iDPPublicCert, err = util.LoadCertificate(s.IDPPublicCertPath)
-	if err != nil {
-		panic(err)
-	}
-
-	return nil
 }
 
 func (s *ServiceProviderSettings) PublicCert() string {
