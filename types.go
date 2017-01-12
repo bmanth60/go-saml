@@ -272,8 +272,8 @@ type AttributeStatement struct {
 
 type AuthnStatement struct {
 	XMLName             xml.Name
-	AuthnInstant        string                `xml:",attr,omitempty"`
-	SessionIndex        string                `xml:",attr,omitempty"`
-	SessionNotOnOrAfter string                `xml:",attr,omitempty"`
+	AuthnInstant        string                `xml:",attr"`
+	SessionIndex        *string                `xml:",attr,omitempty"`
+	SessionNotOnOrAfter *string                `xml:",attr,omitempty"`
 	AuthnContext        RequestedAuthnContext `xml:"AuthnContext"`
 }
