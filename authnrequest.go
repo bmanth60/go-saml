@@ -15,7 +15,13 @@
 package saml
 
 import (
+	"crypto"
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/sha1"
+	"crypto/x509"
 	"encoding/base64"
+	"encoding/pem"
 	"encoding/xml"
 	"errors"
 	"net/url"
@@ -96,7 +102,7 @@ func (s *ServiceProviderSettings) GetAuthnRequest() *AuthnRequest {
 	return r
 }
 
-// GetAuthnRequestURL generate a URL for the AuthnRequest to the IdP with the SAMLRequst parameter encoded
+// GetAuthnRequestURL generate a URL for the AuthnRequest to the IdP with the SAMLRequest parameter encoded
 func GetAuthnRequestURL(baseURL string, b64XML string, state string) (string, error) {
 	u, err := url.Parse(baseURL)
 	if err != nil {
@@ -108,6 +114,62 @@ func GetAuthnRequestURL(baseURL string, b64XML string, state string) (string, er
 	q.Add("RelayState", state)
 	u.RawQuery = q.Encode()
 	return u.String(), nil
+}
+
+// GetSignedAuthnRequestURL generate a URL for the AuthnRequest to the IdP with the SAMLRequest parameter encoded
+func GetSignedAuthnRequestURL(settings ServiceProviderSettings, state string) (string, error) {
+	r := settings.GetAuthnRequest()
+	r.NameIDPolicy.Format = settings.NameIDPolicyFormat
+
+	// Sign the request
+	b64XML, err := r.CompressedEncodedSignedStringFromKey(settings.privateKey)
+	if err != nil {
+		return "", err
+	}
+
+	u, err := url.Parse(settings.IDPSSOURL)
+	if err != nil {
+		return "", err
+	}
+
+	q := u.Query()
+	q.Add("SAMLRequest", b64XML)
+	q.Add("RelayState", state)
+	q.Set("SigAlg", "http://www.w3.org/2000/09/xmldsig#rsa-sha1")
+
+	//Build signature string. Digest must be in this order.
+	sigstr := "SAMLRequest=" + url.QueryEscape(q.Get("SAMLRequest")) +
+		"&RelayState=" + url.QueryEscape(q.Get("RelayState")) +
+		"&SigAlg=" + url.QueryEscape(q.Get("SigAlg"))
+
+	sig, err := GetRequestSignature(sigstr, settings.privateKey)
+	if err != nil {
+		return "", err
+	}
+
+	q.Set("Signature", sig)
+	u.RawQuery = q.Encode()
+	return u.String(), nil
+}
+
+func GetRequestSignature(data string, key string) (sig string, err error) {
+	block, _ := pem.Decode([]byte(key))
+	if block == nil {
+		return "", errors.New("Certificate not valid pem format")
+	}
+
+	privKey, err := x509.ParsePKCS1PrivateKey(block.Bytes) //x509.ParseCertificate(block.Bytes)
+	if err != nil {
+		return "", err
+	}
+
+	digest := sha1.Sum([]byte(data))
+	sigBytes, err := rsa.SignPKCS1v15(rand.Reader, privKey, crypto.SHA1, digest[:])
+	if err != nil {
+		return "", err
+	}
+
+	return base64.StdEncoding.EncodeToString(sigBytes), nil
 }
 
 func NewAuthnRequest() *AuthnRequest {
@@ -252,6 +314,23 @@ func (r *AuthnRequest) EncodedSignedString(privateKeyPath string) (string, error
 		return "", err
 	}
 	b64XML := base64.StdEncoding.EncodeToString([]byte(signed))
+	return b64XML, nil
+}
+
+//CompressedEncodedSignedStringFromKey sign string with sp key, compress, then base64 encode
+func (r *AuthnRequest) CompressedEncodedSignedStringFromKey(key string) (string, error) {
+	s, err := r.String()
+	if err != nil {
+		return "", err
+	}
+
+	signed, err := SignWithKey(s, key)
+	if err != nil {
+		return "", err
+	}
+
+	compressed := util.Compress([]byte(signed))
+	b64XML := base64.StdEncoding.EncodeToString(compressed)
 	return b64XML, nil
 }
 

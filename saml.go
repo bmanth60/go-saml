@@ -15,6 +15,7 @@ type ServiceProviderSettings struct {
 	IDPPublicCertPath           string
 	IDPPublicCertString         string
 	AssertionConsumerServiceURL string
+	NameIDPolicyFormat          string
 	SPSignRequest               bool
 
 	hasInit       bool
@@ -73,21 +74,21 @@ func (s *ServiceProviderSettings) loadSPCertificate() {
 
 func (s *ServiceProviderSettings) PublicCert() string {
 	if !s.hasInit {
-		panic("Must call ServiceProviderSettings.Init() first")
+		s.Init()
 	}
 	return s.publicCert
 }
 
 func (s *ServiceProviderSettings) PrivateKey() string {
 	if !s.hasInit {
-		panic("Must call ServiceProviderSettings.Init() first")
+		s.Init()
 	}
 	return s.privateKey
 }
 
 func (s *ServiceProviderSettings) IDPPublicCert() string {
 	if !s.hasInit {
-		panic("Must call ServiceProviderSettings.Init() first")
+		s.Init()
 	}
 	return s.iDPPublicCert
 }

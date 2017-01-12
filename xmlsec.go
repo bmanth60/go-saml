@@ -15,10 +15,13 @@ func Sign(xml string, privateKeyPath string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	return SignWithKey(xml, string(pemString))
+}
 
-	pemBlock, _ := pem.Decode([]byte(pemString))
+func SignWithKey(xml string, pemKey string) (string, error) {
+	pemBlock, _ := pem.Decode([]byte(pemKey))
 	if pemBlock == nil {
-		return "", errors.New("Count not parse private key")
+		return "", errors.New("Could not parse private key")
 	}
 
 	key, err := x509.ParsePKCS1PrivateKey(pemBlock.Bytes)
@@ -46,12 +49,16 @@ func Verify(xml string, publicCertPath string) error {
 		return err
 	}
 
-	pemBlock, _ := pem.Decode([]byte(pemString))
+	return VerifyWithCert(xml, string(pemString))
+}
+
+func VerifyWithCert(xml string, cert string) error {
+	pemBlock, _ := pem.Decode([]byte(cert))
 	if pemBlock == nil {
 		return errors.New("Could not parse certificate")
 	}
 
-	cert, err := x509.ParseCertificate(pemBlock.Bytes)
+	details, err := x509.ParseCertificate(pemBlock.Bytes)
 	if err != nil {
 		return err
 	}
@@ -61,7 +68,7 @@ func Verify(xml string, publicCertPath string) error {
 		return err
 	}
 
-	validator.Certificates = append(validator.Certificates, *cert)
+	validator.Certificates = append(validator.Certificates, *details)
 
 	err = validator.Validate()
 	if err != nil {
