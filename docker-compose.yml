@@ -1,0 +1,10 @@
+version: '2'
+services:
+  go-saml:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: go-saml:dev
+    volumes:
+      - .:/go/src/github.com/bmanth60/go-saml
+    working_dir: /go/src/github.com/bmanth60/go-saml
