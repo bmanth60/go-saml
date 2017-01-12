@@ -52,13 +52,13 @@ func Verify(xml string, publicCertPath string) error {
 	return VerifyWithCert(xml, string(pemString))
 }
 
-func VerifyWithCert(xml string, cert string) error {
-	pemBlock, _ := pem.Decode([]byte(cert))
+func VerifyWithCert(xml string, certPem string) error {
+	pemBlock, _ := pem.Decode([]byte(certPem))
 	if pemBlock == nil {
 		return errors.New("Could not parse certificate")
 	}
 
-	details, err := x509.ParseCertificate(pemBlock.Bytes)
+	cert, err := x509.ParseCertificate(pemBlock.Bytes)
 	if err != nil {
 		return err
 	}
@@ -68,7 +68,7 @@ func VerifyWithCert(xml string, cert string) error {
 		return err
 	}
 
-	validator.Certificates = append(validator.Certificates, *details)
+	validator.Certificates = append(validator.Certificates, *cert)
 
 	err = validator.Validate()
 	if err != nil {
