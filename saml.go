@@ -6,15 +6,18 @@ import "github.com/RobotsAndPencils/go-saml/util"
 // Expect only one IDP per SP in this configuration. If you need to configure multipe IDPs for an SP
 // then configure multiple instances of this module
 type ServiceProviderSettings struct {
+	EntityId                    string
 	PublicCertPath              string
 	PublicCertString            string
 	PrivateKeyPath              string
 	PrivateKeyString            string
+	IDPSingleLogoutURL          string
 	IDPSSOURL                   string
 	IDPSSODescriptorURL         string
 	IDPPublicCertPath           string
 	IDPPublicCertString         string
 	AssertionConsumerServiceURL string
+	SingleLogoutServiceUrl      string
 	NameIDPolicyFormat          string
 	SPSignRequest               bool
 
@@ -44,6 +47,12 @@ func (s *ServiceProviderSettings) Init() (err error) {
 		if err != nil {
 			panic(err)
 		}
+	}
+
+	//Set the sp entity id to acs url if not found for
+	//backwards compatibility with old configuration
+	if s.EntityId == "" && s.AssertionConsumerServiceURL != "" {
+		s.EntityId = s.AssertionConsumerServiceURL
 	}
 
 	return nil

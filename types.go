@@ -3,23 +3,14 @@ package saml
 import "encoding/xml"
 
 type AuthnRequest struct {
-	XMLName                        xml.Name
-	SAMLP                          string                 `xml:"xmlns:samlp,attr"`
-	SAML                           string                 `xml:"xmlns:saml,attr"`
-	SAMLSIG                        string                 `xml:"xmlns:samlsig,attr,omitempty"`
-	ID                             string                 `xml:"ID,attr"`
-	Version                        string                 `xml:"Version,attr"`
+	*SAMLRoot
+
 	ProtocolBinding                string                 `xml:"ProtocolBinding,attr"`
 	AssertionConsumerServiceURL    string                 `xml:"AssertionConsumerServiceURL,attr"`
-	Destination                    string                 `xml:"Destination,attr"`
-	IssueInstant                   string                 `xml:"IssueInstant,attr"`
 	AssertionConsumerServiceIndex  int                    `xml:"AssertionConsumerServiceIndex,attr"`
 	AttributeConsumingServiceIndex int                    `xml:"AttributeConsumingServiceIndex,attr"`
-	Issuer                         Issuer                 `xml:"Issuer"`
 	NameIDPolicy                   NameIDPolicy           `xml:"NameIDPolicy"`
 	RequestedAuthnContext          *RequestedAuthnContext `xml:"RequestedAuthnContext,omitempty"`
-	Signature                      *Signature             `xml:"Signature,omitempty"`
-	originalString                 string
 }
 
 type Issuer struct {
@@ -141,21 +132,19 @@ type Extensions struct {
 
 type SPSSODescriptor struct {
 	XMLName                    xml.Name
+	AuthnRequestsSigned        bool   `xml:",attr"`
+	wantAssertionsSigned       bool   `xml:",attr"`
 	ProtocolSupportEnumeration string `xml:"protocolSupportEnumeration,attr"`
 	SigningKeyDescriptor       KeyDescriptor
 	EncryptionKeyDescriptor    KeyDescriptor
-	// SingleLogoutService        SingleLogoutService `xml:"SingleLogoutService"`
-	AssertionConsumerServices []AssertionConsumerService
+	SingleLogoutService        SingleLogoutService `xml:"SingleLogoutService"`
+	AssertionConsumerServices  []AssertionConsumerService
 }
 
 type EntityAttributes struct {
-	XMLName xml.Name
-	SAML    string `xml:"xmlns:saml,attr"`
-
+	XMLName          xml.Name
+	SAML             string      `xml:"xmlns:saml,attr"`
 	EntityAttributes []Attribute `xml:"Attribute"` // should be array??
-}
-
-type SPSSODescriptors struct {
 }
 
 type KeyDescriptor struct {
@@ -165,6 +154,7 @@ type KeyDescriptor struct {
 }
 
 type SingleLogoutService struct {
+	XMLName  xml.Name
 	Binding  string `xml:"Binding,attr"`
 	Location string `xml:"Location,attr"`
 }
@@ -177,22 +167,11 @@ type AssertionConsumerService struct {
 }
 
 type Response struct {
-	XMLName      xml.Name
-	SAMLP        string `xml:"xmlns:samlp,attr"`
-	SAML         string `xml:"xmlns:saml,attr"`
-	SAMLSIG      string `xml:"xmlns:samlsig,attr"`
-	Destination  string `xml:"Destination,attr"`
-	ID           string `xml:"ID,attr"`
-	Version      string `xml:"Version,attr"`
-	IssueInstant string `xml:"IssueInstant,attr"`
-	InResponseTo string `xml:"InResponseTo,attr"`
+	*SAMLRoot
 
-	Assertion Assertion `xml:"Assertion"`
-	Signature Signature `xml:"Signature"`
-	Issuer    Issuer    `xml:"Issuer"`
-	Status    Status    `xml:"Status"`
-
-	originalString string
+	InResponseTo string    `xml:"InResponseTo,attr"`
+	Assertion    Assertion `xml:"Assertion"`
+	Status       Status    `xml:"Status"`
 }
 
 type Assertion struct {
@@ -276,4 +255,24 @@ type AuthnStatement struct {
 	SessionIndex        *string               `xml:",attr,omitempty"`
 	SessionNotOnOrAfter *string               `xml:",attr,omitempty"`
 	AuthnContext        RequestedAuthnContext `xml:"AuthnContext"`
+}
+
+type SAMLRoot struct {
+	XMLName        xml.Name
+	SAMLP          string     `xml:"xmlns:samlp,attr"`
+	SAML           string     `xml:"xmlns:saml,attr"`
+	SAMLSIG        string     `xml:"xmlns:samlsig,attr,omitempty"`
+	ID             string     `xml:"ID,attr"`
+	Version        string     `xml:"Version,attr"`
+	Destination    string     `xml:"Destination,attr"`
+	IssueInstant   string     `xml:"IssueInstant,attr"`
+	Issuer         Issuer     `xml:"Issuer"`
+	Signature      *Signature `xml:"Signature,omitempty"`
+	originalString string
+}
+
+type LogoutRequest struct {
+	*SAMLRoot
+
+	NameID NameID `xml:"NameID"`
 }

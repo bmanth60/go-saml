@@ -13,7 +13,7 @@ func (s *ServiceProviderSettings) GetEntityDescriptor() (string, error) {
 		DS:       "http://www.w3.org/2000/09/xmldsig#",
 		XMLNS:    "urn:oasis:names:tc:SAML:2.0:metadata",
 		MD:       "urn:oasis:names:tc:SAML:2.0:metadata",
-		EntityId: s.AssertionConsumerServiceURL,
+		EntityId: s.EntityId,
 
 		Extensions: Extensions{
 			XMLName: xml.Name{
@@ -24,6 +24,8 @@ func (s *ServiceProviderSettings) GetEntityDescriptor() (string, error) {
 			MDRPI:  "urn:oasis:names:tc:SAML:metadata:rpi",
 		},
 		SPSSODescriptor: SPSSODescriptor{
+			AuthnRequestsSigned:        s.SPSignRequest,
+			wantAssertionsSigned:       s.SPSignRequest,
 			ProtocolSupportEnumeration: "urn:oasis:names:tc:SAML:2.0:protocol",
 			SigningKeyDescriptor: KeyDescriptor{
 				XMLName: xml.Name{
@@ -71,13 +73,13 @@ func (s *ServiceProviderSettings) GetEntityDescriptor() (string, error) {
 					},
 				},
 			},
-			// SingleLogoutService{
-			// 	XMLName: xml.Name{
-			// 		Local: "md:SingleLogoutService",
-			// 	},
-			// 	Binding:  "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
-			// 	Location: "---TODO---",
-			// },
+			SingleLogoutService: SingleLogoutService{
+				XMLName: xml.Name{
+					Local: "md:SingleLogoutService",
+				},
+				Binding:  "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
+				Location: s.SingleLogoutServiceUrl,
+			},
 			AssertionConsumerServices: []AssertionConsumerService{
 				{
 					XMLName: xml.Name{
