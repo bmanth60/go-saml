@@ -28,6 +28,7 @@ import (
 	"time"
 
 	"github.com/RobotsAndPencils/go-saml/util"
+	"github.com/RobotsAndPencils/go-saml/packager"
 )
 
 func ParseCompressedEncodedRequest(b64RequestXML string) (*AuthnRequest, error) {
@@ -86,7 +87,7 @@ func (r *AuthnRequest) Validate(publicCertPath string) error {
 	return nil
 }
 
-// GetSignedAuthnRequest returns a singed XML document that represents a AuthnRequest SAML document
+// GetSignedAuthnRequest returns a signed XML document that represents an AuthnRequest SAML document
 func (s *ServiceProviderSettings) GetAuthnRequest() *AuthnRequest {
 	r := NewAuthnRequest()
 	r.AssertionConsumerServiceURL = s.AssertionConsumerServiceURL
@@ -292,75 +293,31 @@ func NewAuthnRequest() *AuthnRequest {
 }
 
 func (r *AuthnRequest) String() (string, error) {
-	b, err := xml.MarshalIndent(r, "", "    ")
-	if err != nil {
-		return "", err
-	}
-
-	return string(b), nil
+	return packager.String(r)
 }
 
 func (r *AuthnRequest) SignedString(privateKeyPath string) (string, error) {
-	s, err := r.String()
-	if err != nil {
-		return "", err
-	}
-
-	return Sign(s, privateKeyPath)
+	return packager.SignedString(r, privateKeyPath)
 }
 
 // GetAuthnRequestURL generate a URL for the AuthnRequest to the IdP with the SAMLRequst parameter encoded
 func (r *AuthnRequest) EncodedSignedString(privateKeyPath string) (string, error) {
-	signed, err := r.SignedString(privateKeyPath)
-	if err != nil {
-		return "", err
-	}
-	b64XML := base64.StdEncoding.EncodeToString([]byte(signed))
-	return b64XML, nil
+	return packager.EncodedSignedString(r, privateKeyPath)
 }
 
 //CompressedEncodedSignedStringFromKey sign string with sp key, compress, then base64 encode
 func (r *AuthnRequest) CompressedEncodedSignedStringFromKey(key string) (string, error) {
-	s, err := r.String()
-	if err != nil {
-		return "", err
-	}
-
-	signed, err := SignWithKey(s, key)
-	if err != nil {
-		return "", err
-	}
-
-	compressed := util.Compress([]byte(signed))
-	b64XML := base64.StdEncoding.EncodeToString(compressed)
-	return b64XML, nil
+	return packager.CompressedEncodedSignedStringFromKey(r, key)
 }
 
 func (r *AuthnRequest) CompressedEncodedSignedString(privateKeyPath string) (string, error) {
-	signed, err := r.SignedString(privateKeyPath)
-	if err != nil {
-		return "", err
-	}
-	compressed := util.Compress([]byte(signed))
-	b64XML := base64.StdEncoding.EncodeToString(compressed)
-	return b64XML, nil
+	return packager.CompressedEncodedSignedString(r, privateKeyPath)
 }
 
 func (r *AuthnRequest) EncodedString() (string, error) {
-	saml, err := r.String()
-	if err != nil {
-		return "", err
-	}
-	b64XML := base64.StdEncoding.EncodeToString([]byte(saml))
-	return b64XML, nil
+	return packager.EncodedString(r)
 }
 
 func (r *AuthnRequest) CompressedEncodedString() (string, error) {
-	saml, err := r.String()
-	if err != nil {
-		return "", err
-	}
-	compressed := util.Compress([]byte(saml))
-	b64XML := base64.StdEncoding.EncodeToString(compressed)
-	return b64XML, nil
+	return packager.CompressedEncodedString(r)
 }

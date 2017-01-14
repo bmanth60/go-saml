@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/RobotsAndPencils/go-saml/util"
+	"github.com/RobotsAndPencils/go-saml/packager"
 )
 
 func ParseCompressedEncodedResponse(b64ResponseXML string) (*Response, error) {
@@ -272,40 +273,19 @@ func (r *Response) AddAttribute(name, value string) {
 }
 
 func (r *Response) String() (string, error) {
-	b, err := xml.MarshalIndent(r, "", "    ")
-	if err != nil {
-		return "", err
-	}
-
-	return string(b), nil
+	return packager.String(r)
 }
 
 func (r *Response) SignedString(privateKeyPath string) (string, error) {
-	s, err := r.String()
-	if err != nil {
-		return "", err
-	}
-
-	return Sign(s, privateKeyPath)
+	return packager.SignedString(r, privateKeyPath)
 }
 
 func (r *Response) EncodedSignedString(privateKeyPath string) (string, error) {
-	signed, err := r.SignedString(privateKeyPath)
-	if err != nil {
-		return "", err
-	}
-	b64XML := base64.StdEncoding.EncodeToString([]byte(signed))
-	return b64XML, nil
+	return packager.EncodedSignedString(r, privateKeyPath)
 }
 
 func (r *Response) CompressedEncodedSignedString(privateKeyPath string) (string, error) {
-	signed, err := r.SignedString(privateKeyPath)
-	if err != nil {
-		return "", err
-	}
-	compressed := util.Compress([]byte(signed))
-	b64XML := base64.StdEncoding.EncodeToString(compressed)
-	return b64XML, nil
+	return packager.CompressedEncodedSignedString(r, privateKeyPath)
 }
 
 // GetAttribute by Name or by FriendlyName. Return blank string if not found
