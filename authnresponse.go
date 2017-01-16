@@ -1,7 +1,6 @@
 package saml
 
 import (
-	"encoding/base64"
 	"encoding/xml"
 	"errors"
 	"time"
@@ -11,13 +10,13 @@ import (
 )
 
 func ParseCompressedEncodedResponse(b64ResponseXML string) (*Response, error) {
-	authnResponse := Response{}
-	compressedXML, err := base64.StdEncoding.DecodeString(b64ResponseXML)
+	bXML, err := packager.DecodeAndInflateString(b64ResponseXML)
 	if err != nil {
 		return nil, err
 	}
-	bXML := util.Decompress(compressedXML)
-	err = xml.Unmarshal(bXML, &authnResponse)
+	
+	authnResponse := new(Response)
+	err = xml.Unmarshal(bXML, authnResponse)
 	if err != nil {
 		return nil, err
 	}
@@ -25,16 +24,17 @@ func ParseCompressedEncodedResponse(b64ResponseXML string) (*Response, error) {
 	// There is a bug with XML namespaces in Go that's causing XML attributes with colons to not be roundtrip
 	// marshal and unmarshaled so we'll keep the original string around for validation.
 	authnResponse.originalString = string(bXML)
-	return &authnResponse, nil
+	return authnResponse, nil
 }
 
 func ParseEncodedResponse(b64ResponseXML string) (*Response, error) {
-	response := Response{}
-	bytesXML, err := base64.StdEncoding.DecodeString(b64ResponseXML)
+	bytesXML, err := packager.DecodeString(b64ResponseXML)
 	if err != nil {
 		return nil, err
 	}
-	err = xml.Unmarshal(bytesXML, &response)
+
+	response := new(Response)
+	err = xml.Unmarshal(bytesXML, response)
 	if err != nil {
 		return nil, err
 	}
@@ -42,8 +42,7 @@ func ParseEncodedResponse(b64ResponseXML string) (*Response, error) {
 	// There is a bug with XML namespaces in Go that's causing XML attributes with colons to not be roundtrip
 	// marshal and unmarshaled so we'll keep the original string around for validation.
 	response.originalString = string(bytesXML)
-	// fmt.Println(response.originalString)
-	return &response, nil
+	return response, nil
 }
 
 func (r *Response) Validate(s *ServiceProviderSettings) error {

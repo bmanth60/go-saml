@@ -18,6 +18,17 @@ package saml
 // TODO
 //Load settings
 
+import(
+	"crypto"
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/sha1"
+	"crypto/x509"
+
+	"encoding/base64"
+	"encoding/pem"
+)
+
 type SAMLRequest interface {
 	ParseCompressedEncodedRequest(b64RequestXML string) error
 	ParseEncodedRequest(b64RequestXML string) error

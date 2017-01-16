@@ -15,13 +15,6 @@
 package saml
 
 import (
-	"crypto"
-	"crypto/rand"
-	"crypto/rsa"
-	"crypto/sha1"
-	"crypto/x509"
-	"encoding/base64"
-	"encoding/pem"
 	"encoding/xml"
 	"errors"
 	"net/url"
@@ -32,13 +25,12 @@ import (
 )
 
 func ParseCompressedEncodedRequest(b64RequestXML string) (*AuthnRequest, error) {
-	var authnRequest AuthnRequest
-	compressedXML, err := base64.StdEncoding.DecodeString(b64RequestXML)
+	bXML, err := packager.DecodeAndInflateString(b64RequestXML)
 	if err != nil {
 		return nil, err
 	}
-	bXML := util.Decompress(compressedXML)
 
+	authnRequest := new(AuthnRequest)
 	err = xml.Unmarshal(bXML, &authnRequest)
 	if err != nil {
 		return nil, err
@@ -47,16 +39,17 @@ func ParseCompressedEncodedRequest(b64RequestXML string) (*AuthnRequest, error) 
 	// There is a bug with XML namespaces in Go that's causing XML attributes with colons to not be roundtrip
 	// marshal and unmarshaled so we'll keep the original string around for validation.
 	authnRequest.originalString = string(bXML)
-	return &authnRequest, nil
+	return authnRequest, nil
 
 }
 
 func ParseEncodedRequest(b64RequestXML string) (*AuthnRequest, error) {
-	authnRequest := AuthnRequest{}
-	bytesXML, err := base64.StdEncoding.DecodeString(b64RequestXML)
+	bytesXML, err := packager.DecodeString(b64RequestXML)
 	if err != nil {
 		return nil, err
 	}
+
+	authnRequest := new(AuthnRequest)
 	err = xml.Unmarshal(bytesXML, &authnRequest)
 	if err != nil {
 		return nil, err
@@ -65,7 +58,7 @@ func ParseEncodedRequest(b64RequestXML string) (*AuthnRequest, error) {
 	// There is a bug with XML namespaces in Go that's causing XML attributes with colons to not be roundtrip
 	// marshal and unmarshaled so we'll keep the original string around for validation.
 	authnRequest.originalString = string(bytesXML)
-	return &authnRequest, nil
+	return authnRequest, nil
 }
 
 func (r *AuthnRequest) Validate(publicCertPath string) error {
@@ -120,10 +113,10 @@ func GetAuthnRequestURL(baseURL string, b64XML string, state string) (string, er
 // GetSignedAuthnRequestURL generate a URL for the AuthnRequest to the IdP with the SAMLRequest parameter encoded
 func GetSignedAuthnRequestURL(settings ServiceProviderSettings, state string) (string, error) {
 	r := settings.GetAuthnRequest()
-	r.NameIDPolicy.Format = settings.NameIDPolicyFormat
+	r.NameIDPolicy.Format = settings.NameIDFormat
 
 	// Sign the request
-	b64XML, err := packager.CompressedEncodedSignedStringFromKey(settings.privateKey)
+	b64XML, err := packager.CompressedEncodedSignedStringFromKey(r, settings.privateKey)
 	if err != nil {
 		return "", err
 	}

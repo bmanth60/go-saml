@@ -18,7 +18,7 @@ type ServiceProviderSettings struct {
 	IDPPublicCertString         string
 	AssertionConsumerServiceURL string
 	SingleLogoutServiceUrl      string
-	NameIDPolicyFormat          string
+	NameIDFormat          string
 	SPSignRequest               bool
 
 	hasInit       bool

@@ -79,3 +79,16 @@ func CompressedEncodedString(data interface{}) (string, error) {
 	b64XML := base64.StdEncoding.EncodeToString(compressed)
 	return b64XML, nil
 }
+
+func DecodeAndInflateString(data string) ([]byte, error) {
+	compressedXML, err := DecodeString(data)
+	if err != nil {
+		return nil, err
+	}
+	bXML := util.Decompress(compressedXML)
+	return bXML, nil
+}
+
+func DecodeString(data string) ([]byte, error) {
+	return base64.StdEncoding.DecodeString(data)
+}

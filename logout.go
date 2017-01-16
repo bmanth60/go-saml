@@ -1,6 +1,10 @@
 package saml
 
 import (
+	"time"
+	"encoding/xml"
+	"net/url"
+
 	"github.com/RobotsAndPencils/go-saml/util"
 	"github.com/RobotsAndPencils/go-saml/packager"
 )
@@ -122,7 +126,7 @@ func (r *LogoutRequest) GetRequestUrl(settings ServiceProviderSettings, state st
 	r.GetRequest(settings, nameID, sessionIndex)
 
 	// Sign the request
-	b64XML, err := packager.CompressedEncodedSignedStringFromKey(settings.privateKey)
+	b64XML, err := packager.CompressedEncodedSignedStringFromKey(r, settings.privateKey)
 	if err != nil {
 		return "", err
 	}
@@ -156,11 +160,11 @@ func (r *LogoutRequest) GetRequest(settings ServiceProviderSettings, nameID stri
 	r.Destination = settings.IDPSingleLogoutURL
 	r.Issuer.Url = settings.EntityId
 	r.Signature.KeyInfo.X509Data.X509Certificate.Cert = settings.PublicCert()
-	r.NameID.Format = settings.NameIDPolicyFormat
+	r.NameID.Format = settings.NameIDFormat
 	r.NameID.Value = nameID
-	r.sessionIndex = sessionIndex
+	r.SessionIndex = sessionIndex
 
-	if !s.SPSignRequest {
+	if !settings.SPSignRequest {
 		r.SAMLSIG = ""
 		r.Signature = nil
 	}
