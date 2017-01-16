@@ -275,4 +275,5 @@ type LogoutRequest struct {
 	*SAMLRoot
 
 	NameID NameID `xml:"NameID"`
+	SessionIndex        string               `xml:"samlp:SessionIndex,omitempty"`
 }

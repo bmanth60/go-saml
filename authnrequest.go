@@ -123,7 +123,7 @@ func GetSignedAuthnRequestURL(settings ServiceProviderSettings, state string) (s
 	r.NameIDPolicy.Format = settings.NameIDPolicyFormat
 
 	// Sign the request
-	b64XML, err := r.CompressedEncodedSignedStringFromKey(settings.privateKey)
+	b64XML, err := packager.CompressedEncodedSignedStringFromKey(settings.privateKey)
 	if err != nil {
 		return "", err
 	}
@@ -151,26 +151,6 @@ func GetSignedAuthnRequestURL(settings ServiceProviderSettings, state string) (s
 	q.Set("Signature", sig)
 	u.RawQuery = q.Encode()
 	return u.String(), nil
-}
-
-func GetRequestSignature(data string, key string) (sig string, err error) {
-	block, _ := pem.Decode([]byte(key))
-	if block == nil {
-		return "", errors.New("Certificate not valid pem format")
-	}
-
-	privKey, err := x509.ParsePKCS1PrivateKey(block.Bytes) //x509.ParseCertificate(block.Bytes)
-	if err != nil {
-		return "", err
-	}
-
-	digest := sha1.Sum([]byte(data))
-	sigBytes, err := rsa.SignPKCS1v15(rand.Reader, privKey, crypto.SHA1, digest[:])
-	if err != nil {
-		return "", err
-	}
-
-	return base64.StdEncoding.EncodeToString(sigBytes), nil
 }
 
 func NewAuthnRequest() *AuthnRequest {
@@ -303,11 +283,6 @@ func (r *AuthnRequest) SignedString(privateKeyPath string) (string, error) {
 // GetAuthnRequestURL generate a URL for the AuthnRequest to the IdP with the SAMLRequst parameter encoded
 func (r *AuthnRequest) EncodedSignedString(privateKeyPath string) (string, error) {
 	return packager.EncodedSignedString(r, privateKeyPath)
-}
-
-//CompressedEncodedSignedStringFromKey sign string with sp key, compress, then base64 encode
-func (r *AuthnRequest) CompressedEncodedSignedStringFromKey(key string) (string, error) {
-	return packager.CompressedEncodedSignedStringFromKey(r, key)
 }
 
 func (r *AuthnRequest) CompressedEncodedSignedString(privateKeyPath string) (string, error) {
