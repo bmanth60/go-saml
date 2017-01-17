@@ -1,14 +1,13 @@
-package packager
+package packager_test
 
 import (
 	"testing"
 
+	"github.com/RobotsAndPencils/go-saml/packager"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestRequest(t *testing.T) {
-	assert := assert.New(t)
-
 	requestXML := `
 	<samlp:AuthnRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:samlsig="http://www.w3.org/2000/09/xmldsig#" ID="_5a3267ae-5faf-4322-6bef-87c13a6bea5a" Version="2.0" ProtocolBinding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" AssertionConsumerServiceURL="http://www.onelogin.net/acs" Destination="http://www.onelogin.net" IssueInstant="2017-01-17T19:05:24.15287472Z" AssertionConsumerServiceIndex="0" AttributeConsumingServiceIndex="0">
 	    <saml:Issuer xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">http://www.onelogin.net/metadata</saml:Issuer>
@@ -38,10 +37,10 @@ func TestRequest(t *testing.T) {
 	</samlp:AuthnRequest>
 	`
 
-	signedXML, err := Sign(requestXML, "../certs/default.key")
-	assert.NoError(err)
-	assert.NotEmpty(signedXML)
+	signedXML, err := packager.Sign(requestXML, "../certs/default.key")
+	assert.NoError(t, err)
+	assert.NotEmpty(t, signedXML)
 
-	err = Verify(signedXML, "../certs/default.crt")
-	assert.NoError(err)
+	err = packager.Verify(signedXML, "../certs/default.crt")
+	assert.NoError(t, err)
 }

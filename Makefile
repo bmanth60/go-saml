@@ -40,12 +40,12 @@ test: vet
 # Docker initiated commands
 
 # Build via docker
-buildx:
+buildx: depx depinfox
 	mkdir -p dist
 	${RUN} go build -o dist/${PROJECT_NAME}
 
 # Test via docker
-testx: depx fmtx lintx
+testx: depinfox fmtx lintx
 	${RUN} go test -v ${PKG}
 
 # Test coverage via docker
@@ -66,7 +66,11 @@ lintx:
 
 # Load dependencies via docker
 depx:
-	${RUN} bash -c "govendor sync && govendor list && govendor status"
+	${RUN} bash -c "govendor sync"
+
+# Load dependency information via docker
+depinfox:
+	${RUN} bash -c "govendor list && govendor status"
 
 # Format code via docker
 fmtx:
