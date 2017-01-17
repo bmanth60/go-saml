@@ -23,6 +23,8 @@ _testmain.go
 
 # App dependencies
 vendor/*/
+dist/
+reports/
 
 # Docker
 docker-compose.override.yml

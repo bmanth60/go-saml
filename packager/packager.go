@@ -27,7 +27,7 @@ func SignedString(data interface{}, privateKeyPath string) (string, error) {
 	return Sign(str, privateKeyPath)
 }
 
-//SignedString get base64 encoded, xml signed string representation of xml document
+//EncodedSignedString get base64 encoded, xml signed string representation of xml document
 func EncodedSignedString(data interface{}, privateKeyPath string) (string, error) {
 	signed, err := SignedString(data, privateKeyPath)
 	if err != nil {
