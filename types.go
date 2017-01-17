@@ -1,9 +1,14 @@
 package saml
 
+//This class contains types modeled after the elements found in the
+//SAML 2.0 specifications. More details can be found:
+//http://docs.oasis-open.org/security/saml/v2.0/sstc-saml-approved-errata-2.0.html
+
 import "encoding/xml"
 
+//AuthnRequest saml authentication request
 type AuthnRequest struct {
-	*SAMLRoot
+	*RootXML
 
 	ProtocolBinding                string                 `xml:"ProtocolBinding,attr"`
 	AssertionConsumerServiceURL    string                 `xml:"AssertionConsumerServiceURL,attr"`
@@ -13,18 +18,21 @@ type AuthnRequest struct {
 	RequestedAuthnContext          *RequestedAuthnContext `xml:"RequestedAuthnContext,omitempty"`
 }
 
+//Issuer request issuer
 type Issuer struct {
 	XMLName xml.Name
 	SAML    string `xml:"xmlns:saml,attr"`
-	Url     string `xml:",innerxml"`
+	URL     string `xml:",innerxml"`
 }
 
+//NameIDPolicy policy for saml nameid
 type NameIDPolicy struct {
 	XMLName     xml.Name
 	AllowCreate bool   `xml:"AllowCreate,attr"`
 	Format      string `xml:"Format,attr"`
 }
 
+//RequestedAuthnContext requested authentication context
 type RequestedAuthnContext struct {
 	XMLName              xml.Name
 	SAMLP                string               `xml:"xmlns:samlp,attr"`
@@ -32,20 +40,23 @@ type RequestedAuthnContext struct {
 	AuthnContextClassRef AuthnContextClassRef `xml:"AuthnContextClassRef"`
 }
 
+//AuthnContextClassRef authentication context to use for saml interaction
 type AuthnContextClassRef struct {
 	XMLName   xml.Name
 	SAML      string `xml:"xmlns:saml,attr"`
 	Transport string `xml:",innerxml"`
 }
 
+//Signature signature for request/response
 type Signature struct {
 	XMLName        xml.Name
-	Id             string `xml:"Id,attr"`
+	ID             string `xml:"Id,attr"`
 	SignedInfo     SignedInfo
 	SignatureValue SignatureValue
 	KeyInfo        KeyInfo
 }
 
+//SignedInfo signature information
 type SignedInfo struct {
 	XMLName                xml.Name
 	CanonicalizationMethod CanonicalizationMethod
@@ -53,26 +64,31 @@ type SignedInfo struct {
 	SamlsigReference       SamlsigReference
 }
 
+//SignatureValue signature information data
 type SignatureValue struct {
 	XMLName xml.Name
 	Value   string `xml:",innerxml"`
 }
 
+//KeyInfo key information for signature
 type KeyInfo struct {
 	XMLName  xml.Name
 	X509Data X509Data `xml:",innerxml"`
 }
 
+//CanonicalizationMethod TODO needs description
 type CanonicalizationMethod struct {
 	XMLName   xml.Name
 	Algorithm string `xml:"Algorithm,attr"`
 }
 
+//SignatureMethod Algorithm for signature
 type SignatureMethod struct {
 	XMLName   xml.Name
 	Algorithm string `xml:"Algorithm,attr"`
 }
 
+//SamlsigReference TODO needs description
 type SamlsigReference struct {
 	XMLName      xml.Name
 	URI          string       `xml:"URI,attr"`
@@ -81,46 +97,54 @@ type SamlsigReference struct {
 	DigestValue  DigestValue  `xml:",innerxml"`
 }
 
+//X509Data X.509 formatted data
 type X509Data struct {
 	XMLName         xml.Name
 	X509Certificate X509Certificate `xml:",innerxml"`
 }
 
+//Transforms set of transforms applied to signature
 type Transforms struct {
 	XMLName   xml.Name
 	Transform Transform
 }
 
+//DigestMethod algorithm used to create signature digest
 type DigestMethod struct {
 	XMLName   xml.Name
 	Algorithm string `xml:"Algorithm,attr"`
 }
 
+//DigestValue resulting signature digest
 type DigestValue struct {
 	XMLName xml.Name
 }
 
+//X509Certificate X.509 formatted certificate
 type X509Certificate struct {
 	XMLName xml.Name
 	Cert    string `xml:",innerxml"`
 }
 
+//Transform algorithm transform for signature
 type Transform struct {
 	XMLName   xml.Name
 	Algorithm string `xml:"Algorithm,attr"`
 }
 
+//EntityDescriptor saml metadata descriptor
 type EntityDescriptor struct {
 	XMLName  xml.Name
 	DS       string `xml:"xmlns:ds,attr"`
 	XMLNS    string `xml:"xmlns,attr"`
 	MD       string `xml:"xmlns:md,attr"`
-	EntityId string `xml:"entityID,attr"`
+	EntityID string `xml:"entityID,attr"`
 
 	Extensions      Extensions      `xml:"Extensions"`
 	SPSSODescriptor SPSSODescriptor `xml:"SPSSODescriptor"`
 }
 
+//Extensions TODO needs description
 type Extensions struct {
 	XMLName xml.Name
 	Alg     string `xml:"xmlns:alg,attr"`
@@ -130,6 +154,7 @@ type Extensions struct {
 	EntityAttributes string `xml:"EntityAttributes"`
 }
 
+//SPSSODescriptor TODO needs description
 type SPSSODescriptor struct {
 	XMLName                    xml.Name
 	AuthnRequestsSigned        bool   `xml:",attr"`
@@ -141,24 +166,28 @@ type SPSSODescriptor struct {
 	AssertionConsumerServices  []AssertionConsumerService
 }
 
+//EntityAttributes TODO needs description
 type EntityAttributes struct {
 	XMLName          xml.Name
 	SAML             string      `xml:"xmlns:saml,attr"`
 	EntityAttributes []Attribute `xml:"Attribute"` // should be array??
 }
 
+//KeyDescriptor TODO needs description
 type KeyDescriptor struct {
 	XMLName xml.Name
 	Use     string  `xml:"use,attr"`
 	KeyInfo KeyInfo `xml:"KeyInfo"`
 }
 
+//SingleLogoutService logout service metadata
 type SingleLogoutService struct {
 	XMLName  xml.Name
 	Binding  string `xml:"Binding,attr"`
 	Location string `xml:"Location,attr"`
 }
 
+//AssertionConsumerService sso assertion metadata
 type AssertionConsumerService struct {
 	XMLName  xml.Name
 	Binding  string `xml:"Binding,attr"`
@@ -166,14 +195,16 @@ type AssertionConsumerService struct {
 	Index    string `xml:"index,attr"`
 }
 
+//Response saml responses
 type Response struct {
-	*SAMLRoot
+	*RootXML
 
 	InResponseTo string    `xml:"InResponseTo,attr"`
 	Assertion    Assertion `xml:"Assertion"`
 	Status       Status    `xml:"Status"`
 }
 
+//Assertion saml response assertion information
 type Assertion struct {
 	XMLName            xml.Name
 	ID                 string `xml:"ID,attr"`
@@ -190,52 +221,61 @@ type Assertion struct {
 	AuthnStatement     AuthnStatement `xml:"AuthnStatement,omitempty"`
 }
 
+//Conditions of assertion
 type Conditions struct {
 	XMLName      xml.Name
 	NotBefore    string `xml:",attr"`
 	NotOnOrAfter string `xml:",attr"`
 }
 
+//Subject of assertion
 type Subject struct {
 	XMLName             xml.Name
 	NameID              NameID
 	SubjectConfirmation SubjectConfirmation
 }
 
+//SubjectConfirmation TODO needs description
 type SubjectConfirmation struct {
 	XMLName                 xml.Name
 	Method                  string `xml:",attr"`
 	SubjectConfirmationData SubjectConfirmationData
 }
 
+//Status of response
 type Status struct {
 	XMLName    xml.Name
 	StatusCode StatusCode `xml:"StatusCode"`
 }
 
+//SubjectConfirmationData TODO needs description
 type SubjectConfirmationData struct {
 	InResponseTo string `xml:",attr"`
 	NotOnOrAfter string `xml:",attr"`
 	Recipient    string `xml:",attr"`
 }
 
+//NameID information
 type NameID struct {
 	XMLName xml.Name
 	Format  string `xml:",attr"`
 	Value   string `xml:",innerxml"`
 }
 
+//StatusCode TODO needs description
 type StatusCode struct {
 	XMLName xml.Name
 	Value   string `xml:",attr"`
 }
 
+//AttributeValue of subject attribute
 type AttributeValue struct {
 	XMLName xml.Name
 	Type    string `xml:"xsi:type,attr"`
 	Value   string `xml:",innerxml"`
 }
 
+//Attribute of subject
 type Attribute struct {
 	XMLName         xml.Name
 	Name            string           `xml:",attr"`
@@ -244,11 +284,13 @@ type Attribute struct {
 	AttributeValues []AttributeValue `xml:"AttributeValue"`
 }
 
+//AttributeStatement TODO needs description
 type AttributeStatement struct {
 	XMLName    xml.Name
 	Attributes []Attribute `xml:"Attribute"`
 }
 
+//AuthnStatement statement for session information
 type AuthnStatement struct {
 	XMLName             xml.Name
 	AuthnInstant        string                `xml:",attr"`
@@ -257,7 +299,8 @@ type AuthnStatement struct {
 	AuthnContext        RequestedAuthnContext `xml:"AuthnContext"`
 }
 
-type SAMLRoot struct {
+//RootXML saml root xml data
+type RootXML struct {
 	XMLName        xml.Name
 	SAMLP          string     `xml:"xmlns:samlp,attr"`
 	SAML           string     `xml:"xmlns:saml,attr"`
@@ -271,8 +314,9 @@ type SAMLRoot struct {
 	originalString string
 }
 
+//LogoutRequest saml logout request
 type LogoutRequest struct {
-	*SAMLRoot
+	*RootXML
 
 	NameID       NameID `xml:"NameID"`
 	SessionIndex string `xml:"samlp:SessionIndex,omitempty"`

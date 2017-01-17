@@ -9,43 +9,8 @@ import (
 	"github.com/RobotsAndPencils/go-saml/util"
 )
 
-func ParseCompressedEncodedResponse(b64ResponseXML string) (*Response, error) {
-	bXML, err := packager.DecodeAndInflateString(b64ResponseXML)
-	if err != nil {
-		return nil, err
-	}
-
-	authnResponse := new(Response)
-	err = xml.Unmarshal(bXML, authnResponse)
-	if err != nil {
-		return nil, err
-	}
-
-	// There is a bug with XML namespaces in Go that's causing XML attributes with colons to not be roundtrip
-	// marshal and unmarshaled so we'll keep the original string around for validation.
-	authnResponse.originalString = string(bXML)
-	return authnResponse, nil
-}
-
-func ParseEncodedResponse(b64ResponseXML string) (*Response, error) {
-	bytesXML, err := packager.DecodeString(b64ResponseXML)
-	if err != nil {
-		return nil, err
-	}
-
-	response := new(Response)
-	err = xml.Unmarshal(bytesXML, response)
-	if err != nil {
-		return nil, err
-	}
-
-	// There is a bug with XML namespaces in Go that's causing XML attributes with colons to not be roundtrip
-	// marshal and unmarshaled so we'll keep the original string around for validation.
-	response.originalString = string(bytesXML)
-	return response, nil
-}
-
-func (r *Response) Validate(s *ServiceProviderSettings) error {
+//Validate saml response
+func (r *Response) Validate(s *Settings) error {
 	if r.Version != "2.0" {
 		return errors.New("unsupported SAML Version")
 	}
@@ -62,19 +27,19 @@ func (r *Response) Validate(s *ServiceProviderSettings) error {
 		return errors.New("no signature")
 	}
 
-	if r.Destination != s.AssertionConsumerServiceURL {
-		return errors.New("destination mismath expected: " + s.AssertionConsumerServiceURL + " not " + r.Destination)
+	if r.Destination != s.SP.AssertionConsumerServiceURL {
+		return errors.New("destination mismath expected: " + s.SP.AssertionConsumerServiceURL + " not " + r.Destination)
 	}
 
 	if r.Assertion.Subject.SubjectConfirmation.Method != "urn:oasis:names:tc:SAML:2.0:cm:bearer" {
 		return errors.New("assertion method exception")
 	}
 
-	if r.Assertion.Subject.SubjectConfirmation.SubjectConfirmationData.Recipient != s.AssertionConsumerServiceURL {
-		return errors.New("subject recipient mismatch, expected: " + s.AssertionConsumerServiceURL + " not " + r.Assertion.Subject.SubjectConfirmation.SubjectConfirmationData.Recipient)
+	if r.Assertion.Subject.SubjectConfirmation.SubjectConfirmationData.Recipient != s.SP.AssertionConsumerServiceURL {
+		return errors.New("subject recipient mismatch, expected: " + s.SP.AssertionConsumerServiceURL + " not " + r.Assertion.Subject.SubjectConfirmation.SubjectConfirmationData.Recipient)
 	}
 
-	err := Verify(r.originalString, s.IDPPublicCertPath)
+	err := packager.VerifyWithCert(r.originalString, s.IDP.publicCert)
 	if err != nil {
 		return err
 	}
@@ -92,9 +57,10 @@ func (r *Response) Validate(s *ServiceProviderSettings) error {
 	return nil
 }
 
+//NewSignedResponse get new signed response object
 func NewSignedResponse() *Response {
 	return &Response{
-		SAMLRoot: &SAMLRoot{
+		RootXML: &RootXML{
 			XMLName: xml.Name{
 				Local: "samlp:Response",
 			},
@@ -108,13 +74,13 @@ func NewSignedResponse() *Response {
 				XMLName: xml.Name{
 					Local: "saml:Issuer",
 				},
-				Url: "", // caller must populate ar.AppSettings.AssertionConsumerServiceURL,
+				URL: "", // caller must populate ar.AppSettings.AssertionConsumerServiceURL,
 			},
 			Signature: &Signature{
 				XMLName: xml.Name{
 					Local: "samlsig:Signature",
 				},
-				Id: "Signature1",
+				ID: "Signature1",
 				SignedInfo: SignedInfo{
 					XMLName: xml.Name{
 						Local: "samlsig:SignedInfo",
@@ -251,7 +217,7 @@ func NewSignedResponse() *Response {
 	}
 }
 
-// AddAttribute add strong attribute to the Response
+//AddAttribute add strong attribute to the Response
 func (r *Response) AddAttribute(name, value string) {
 	r.Assertion.AttributeStatement.Attributes = append(r.Assertion.AttributeStatement.Attributes, Attribute{
 		XMLName: xml.Name{
@@ -271,22 +237,6 @@ func (r *Response) AddAttribute(name, value string) {
 	})
 }
 
-func (r *Response) String() (string, error) {
-	return packager.String(r)
-}
-
-func (r *Response) SignedString(privateKeyPath string) (string, error) {
-	return packager.SignedString(r, privateKeyPath)
-}
-
-func (r *Response) EncodedSignedString(privateKeyPath string) (string, error) {
-	return packager.EncodedSignedString(r, privateKeyPath)
-}
-
-func (r *Response) CompressedEncodedSignedString(privateKeyPath string) (string, error) {
-	return packager.CompressedEncodedSignedString(r, privateKeyPath)
-}
-
 // GetAttribute by Name or by FriendlyName. Return blank string if not found
 func (r *Response) GetAttribute(name string) string {
 	for _, attr := range r.Assertion.AttributeStatement.Attributes {
@@ -297,6 +247,7 @@ func (r *Response) GetAttribute(name string) string {
 	return ""
 }
 
+//GetAttributeValues from attribute name or FriendlyName. Return string slice of values.
 func (r *Response) GetAttributeValues(name string) []string {
 	var values []string
 	for _, attr := range r.Assertion.AttributeStatement.Attributes {
@@ -307,4 +258,24 @@ func (r *Response) GetAttributeValues(name string) []string {
 		}
 	}
 	return values
+}
+
+//String get string representation of authentication response object
+func (r *Response) String() (string, error) {
+	return packager.String(r)
+}
+
+//SignedString get xml signed string representation of authentication response object
+func (r *Response) SignedString(privateKeyPath string) (string, error) {
+	return packager.SignedString(r, privateKeyPath)
+}
+
+//EncodedSignedString get base64 encoded and xml signed string representation of authentication response object
+func (r *Response) EncodedSignedString(privateKeyPath string) (string, error) {
+	return packager.EncodedSignedString(r, privateKeyPath)
+}
+
+//CompressedEncodedSignedString get compressed, base64 encoded and xml signed string representation of authentication response object
+func (r *Response) CompressedEncodedSignedString(privateKeyPath string) (string, error) {
+	return packager.CompressedEncodedSignedString(r, privateKeyPath)
 }

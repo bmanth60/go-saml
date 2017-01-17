@@ -17,13 +17,13 @@ package saml
 import (
 	"encoding/xml"
 	"errors"
-	"net/url"
 	"time"
 
 	"github.com/RobotsAndPencils/go-saml/packager"
 	"github.com/RobotsAndPencils/go-saml/util"
 )
 
+//Validate authentication request
 func (r *AuthnRequest) Validate(publicCertPath string) error {
 	if r.Version != "2.0" {
 		return errors.New("unsupported SAML Version")
@@ -43,12 +43,13 @@ func (r *AuthnRequest) Validate(publicCertPath string) error {
 	return nil
 }
 
-// GetSignedAuthnRequest returns a signed XML document that represents an AuthnRequest SAML document
-func GetAuthnRequest(s SAMLSettings) *AuthnRequest {
+//GetAuthnRequest returns an authentication request object based on SAML Settings
+//passed in
+func GetAuthnRequest(s Settings) *AuthnRequest {
 	r := NewAuthnRequest()
 	r.AssertionConsumerServiceURL = s.SP.AssertionConsumerServiceURL
 	r.Destination = s.IDP.SingleSignOnURL
-	r.Issuer.Url = s.IDP.SingleSignOnDescriptorURL
+	r.Issuer.URL = s.IDP.SingleSignOnDescriptorURL
 	r.Signature.KeyInfo.X509Data.X509Certificate.Cert = s.SPPublicCert()
 
 	if !s.SP.SignRequest {
@@ -59,10 +60,11 @@ func GetAuthnRequest(s SAMLSettings) *AuthnRequest {
 	return r
 }
 
+//NewAuthnRequest get a new authentication request object
 func NewAuthnRequest() *AuthnRequest {
 	id := util.ID()
 	return &AuthnRequest{
-		SAMLRoot: &SAMLRoot{
+		RootXML: &RootXML{
 			XMLName: xml.Name{
 				Local: "samlp:AuthnRequest",
 			},
@@ -75,7 +77,7 @@ func NewAuthnRequest() *AuthnRequest {
 				XMLName: xml.Name{
 					Local: "saml:Issuer",
 				},
-				Url:  "", // caller must populate ar.AppSettings.Issuer
+				URL:  "", // caller must populate ar.AppSettings.Issuer
 				SAML: "urn:oasis:names:tc:SAML:2.0:assertion",
 			},
 			IssueInstant: time.Now().UTC().Format(time.RFC3339Nano),
@@ -83,7 +85,7 @@ func NewAuthnRequest() *AuthnRequest {
 				XMLName: xml.Name{
 					Local: "samlsig:Signature",
 				},
-				Id: "Signature1",
+				ID: "Signature1",
 				SignedInfo: SignedInfo{
 					XMLName: xml.Name{
 						Local: "samlsig:SignedInfo",
@@ -176,4 +178,34 @@ func NewAuthnRequest() *AuthnRequest {
 			},
 		},
 	}
+}
+
+//String get string representation of authentication request
+func (r *AuthnRequest) String() (string, error) {
+	return packager.String(r)
+}
+
+//SignedString get xml signed string representation of authentication request
+func (r *AuthnRequest) SignedString(privateKeyPath string) (string, error) {
+	return packager.SignedString(r, privateKeyPath)
+}
+
+//EncodedSignedString get base64 encoded and xml signed string representation of authentication request
+func (r *AuthnRequest) EncodedSignedString(privateKeyPath string) (string, error) {
+	return packager.EncodedSignedString(r, privateKeyPath)
+}
+
+//CompressedEncodedSignedString get compressed, base64 encoded and xml signed string representation of authentication request
+func (r *AuthnRequest) CompressedEncodedSignedString(privateKeyPath string) (string, error) {
+	return packager.CompressedEncodedSignedString(r, privateKeyPath)
+}
+
+//EncodedString get base64 encoded string representation of authentication request object
+func (r *AuthnRequest) EncodedString() (string, error) {
+	return packager.EncodedString(r)
+}
+
+//CompressedEncodedString get compressed and base64 encoded string representation of authentication request object
+func (r *AuthnRequest) CompressedEncodedString() (string, error) {
+	return packager.CompressedEncodedString(r)
 }

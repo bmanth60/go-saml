@@ -2,42 +2,48 @@ package saml
 
 import "github.com/RobotsAndPencils/go-saml/util"
 
-type SAMLSettings struct {
-	SP ServiceProviderSettings
+//Settings to configure saml properties for
+//one idp and/or one sp.
+//If you need to configure multipe IDPs for an SP
+//then configure multiple instances of this object
+type Settings struct {
+	SP  ServiceProviderSettings
 	IDP IdentityProviderSettings
 
 	hasInit bool
 }
 
-// ServiceProviderSettings provides settings to configure server acting as a SAML Service Provider.
-// Expect only one IDP per SP in this configuration. If you need to configure multipe IDPs for an SP
-// then configure multiple instances of this module
+//ServiceProviderSettings provides settings to configure server acting as a SAML Service Provider.
+//Expect only one IDP per SP in this configuration.
 type ServiceProviderSettings struct {
-	EntityId                    string
+	EntityID                    string
 	PublicCertPath              string
 	PublicCertString            string
 	PrivateKeyPath              string
 	PrivateKeyString            string
 	AssertionConsumerServiceURL string
-	SingleLogoutServiceUrl      string
-	SignRequest               	bool
+	SingleLogoutServiceURL      string
+	SignRequest                 bool
 
-	publicCert    string
-	privateKey    string
+	publicCert string
+	privateKey string
 }
 
+//IdentityProviderSettings to configure idp specific settings
 type IdentityProviderSettings struct {
-	SingleLogoutURL          string
-	SingleSignOnURL                   string
-	SingleSignOnDescriptorURL         string
-	PublicCertPath           string
-	PublicCertString         string
-	NameIDFormat                string
+	SingleLogoutURL           string
+	SingleSignOnURL           string
+	SingleSignOnDescriptorURL string
+	PublicCertPath            string
+	PublicCertString          string
+	NameIDFormat              string
 
-	publicCert    string
+	publicCert string
 }
 
-func (s *SAMLSettings) Init() (err error) {
+//Init settings and load configuration files as needed
+//This will panic on error as SP/IDP fails to load
+func (s *Settings) Init() (err error) {
 	if s.hasInit {
 		return nil
 	}
@@ -58,15 +64,15 @@ func (s *SAMLSettings) Init() (err error) {
 
 	//Set the sp entity id to acs url if not found for
 	//backwards compatibility with old configuration
-	if s.SP.EntityId == "" && s.SP.AssertionConsumerServiceURL != "" {
-		s.SP.EntityId = s.SP.AssertionConsumerServiceURL
+	if s.SP.EntityID == "" && s.SP.AssertionConsumerServiceURL != "" {
+		s.SP.EntityID = s.SP.AssertionConsumerServiceURL
 	}
 
 	return nil
 }
 
 //loadSPCertificate load service provider certificate into settings object
-func (s *SAMLSettings) loadSPCertificate() {
+func (s *Settings) loadSPCertificate() {
 	var err error
 
 	if s.SP.PublicCertString != "" {
@@ -88,21 +94,24 @@ func (s *SAMLSettings) loadSPCertificate() {
 	}
 }
 
-func (s *SAMLSettings) SPPublicCert() string {
+//SPPublicCert get loaded sp public certificate
+func (s *Settings) SPPublicCert() string {
 	if !s.hasInit {
 		s.Init()
 	}
 	return s.SP.publicCert
 }
 
-func (s *SAMLSettings) SPPrivateKey() string {
+//SPPrivateKey get loaded sp private key
+func (s *Settings) SPPrivateKey() string {
 	if !s.hasInit {
 		s.Init()
 	}
 	return s.SP.privateKey
 }
 
-func (s *SAMLSettings) IDPPublicCert() string {
+//IDPPublicCert get loaded idp public certificate
+func (s *Settings) IDPPublicCert() string {
 	if !s.hasInit {
 		s.Init()
 	}

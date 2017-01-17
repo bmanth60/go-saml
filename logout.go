@@ -2,10 +2,8 @@ package saml
 
 import (
 	"encoding/xml"
-	"net/url"
 	"time"
 
-	"github.com/RobotsAndPencils/go-saml/packager"
 	"github.com/RobotsAndPencils/go-saml/util"
 )
 
@@ -13,7 +11,7 @@ import (
 func NewLogoutRequest(sps ServiceProviderSettings) *LogoutRequest {
 	id := util.ID()
 	return &LogoutRequest{
-		SAMLRoot: &SAMLRoot{
+		RootXML: &RootXML{
 			XMLName: xml.Name{
 				Local: "samlp:LogoutRequest",
 			},
@@ -26,7 +24,7 @@ func NewLogoutRequest(sps ServiceProviderSettings) *LogoutRequest {
 				XMLName: xml.Name{
 					Local: "saml:Issuer",
 				},
-				Url:  "", // caller must populate ar.AppSettings.Issuer
+				URL:  "", // caller must populate ar.AppSettings.Issuer
 				SAML: "urn:oasis:names:tc:SAML:2.0:assertion",
 			},
 			IssueInstant: time.Now().UTC().Format(time.RFC3339Nano),
@@ -34,7 +32,7 @@ func NewLogoutRequest(sps ServiceProviderSettings) *LogoutRequest {
 				XMLName: xml.Name{
 					Local: "samlsig:Signature",
 				},
-				Id: "Signature1",
+				ID: "Signature1",
 				SignedInfo: SignedInfo{
 					XMLName: xml.Name{
 						Local: "samlsig:SignedInfo",
@@ -114,10 +112,10 @@ func NewLogoutRequest(sps ServiceProviderSettings) *LogoutRequest {
 }
 
 //GetLogoutRequest entity as specified by provided parameters
-func GetLogoutRequest(settings SAMLSettings, nameID string, sessionIndex string) *LogoutRequest {
+func GetLogoutRequest(settings Settings, nameID string, sessionIndex string) *LogoutRequest {
 	r := NewLogoutRequest()
 	r.Destination = settings.IDP.SingleLogoutURL
-	r.Issuer.Url = settings.SP.EntityId
+	r.Issuer.URL = settings.SP.EntityID
 	r.Signature.KeyInfo.X509Data.X509Certificate.Cert = settings.SPPublicCert()
 	r.NameID.Format = settings.IDP.NameIDFormat
 	r.NameID.Value = nameID

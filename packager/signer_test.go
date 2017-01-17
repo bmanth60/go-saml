@@ -1,4 +1,4 @@
-package saml
+package packager
 
 import (
 	"encoding/xml"
@@ -10,7 +10,7 @@ import (
 
 func TestRequest(t *testing.T) {
 	assert := assert.New(t)
-	cert, err := util.LoadCertificate("./default.crt")
+	cert, err := util.LoadCertificate("../certs/default.crt")
 	assert.NoError(err)
 
 	// Construct an AuthnRequest
@@ -21,17 +21,17 @@ func TestRequest(t *testing.T) {
 	assert.NoError(err)
 	xmlAuthnRequest := string(b)
 
-	signedXml, err := Sign(xmlAuthnRequest, "./default.key")
+	signedXml, err := Sign(xmlAuthnRequest, "../certs/default.key")
 	assert.NoError(err)
 	assert.NotEmpty(signedXml)
 
-	err = Verify(signedXml, "./default.crt")
+	err = Verify(signedXml, "../certs/default.crt")
 	assert.NoError(err)
 }
 
 func TestResponse(t *testing.T) {
 	assert := assert.New(t)
-	cert, err := util.LoadCertificate("./default.crt")
+	cert, err := util.LoadCertificate("../certs/default.crt")
 	assert.NoError(err)
 
 	// Construct an AuthnRequest
@@ -42,10 +42,10 @@ func TestResponse(t *testing.T) {
 	assert.NoError(err)
 	xmlResponse := string(b)
 
-	signedXml, err := Sign(xmlResponse, "./default.key")
+	signedXml, err := Sign(xmlResponse, "../certs/default.key")
 	assert.NoError(err)
 	assert.NotEmpty(signedXml)
 
-	err = Verify(signedXml, "./default.crt")
+	err = Verify(signedXml, "../certs/default.crt")
 	assert.NoError(err)
 }

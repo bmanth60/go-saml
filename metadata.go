@@ -5,6 +5,8 @@ import (
 	"fmt"
 )
 
+//GetEntityDescriptor get saml entity metadata XML as specified by
+//http://docs.oasis-open.org/security/saml/Post2.0/sstc-saml1x-metadata-cs-01.html
 func (s *ServiceProviderSettings) GetEntityDescriptor() (string, error) {
 	d := EntityDescriptor{
 		XMLName: xml.Name{
@@ -13,7 +15,7 @@ func (s *ServiceProviderSettings) GetEntityDescriptor() (string, error) {
 		DS:       "http://www.w3.org/2000/09/xmldsig#",
 		XMLNS:    "urn:oasis:names:tc:SAML:2.0:metadata",
 		MD:       "urn:oasis:names:tc:SAML:2.0:metadata",
-		EntityId: s.SP.EntityId,
+		EntityID: s.SP.EntityID,
 
 		Extensions: Extensions{
 			XMLName: xml.Name{
@@ -78,7 +80,7 @@ func (s *ServiceProviderSettings) GetEntityDescriptor() (string, error) {
 					Local: "md:SingleLogoutService",
 				},
 				Binding:  "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
-				Location: s.SP.SingleLogoutServiceUrl,
+				Location: s.SP.SingleLogoutServiceURL,
 			},
 			AssertionConsumerServices: []AssertionConsumerService{
 				{

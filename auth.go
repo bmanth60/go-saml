@@ -24,9 +24,13 @@ import (
 	"crypto/rsa"
 	"crypto/sha1"
 	"crypto/x509"
+	"net/url"
+
+	"github.com/RobotsAndPencils/go-saml/packager"
 
 	"encoding/base64"
 	"encoding/pem"
+	"encoding/xml"
 )
 
 //GetAuthnRequestURL as SP, generate authentication request url to perform sso
@@ -43,7 +47,7 @@ func GetAuthnRequestURL() {
 	u.RawQuery = q.Encode()
 	return u.String(), nil
 
-	r := GetAuthnRequest()
+	/*r := GetAuthnRequest()
 	r.NameIDPolicy.Format = settings.IDP.NameIDFormat
 
 	// Sign the request
@@ -74,7 +78,7 @@ func GetAuthnRequestURL() {
 
 	q.Set("Signature", sig)
 	u.RawQuery = q.Encode()
-	return u.String(), nil
+	return u.String(), nil*/
 }
 
 //ParseAuthnRequest as IDP, parse incoming authentication request
@@ -99,11 +103,26 @@ func ParseAuthnRequest() {
 
 //ParseAuthnResponse as SP, parse incoming authentication response
 func ParseAuthnResponse() {
+	bytesXML, err := packager.DecodeString(b64ResponseXML)
+	bXML, err := packager.DecodeAndInflateString(b64ResponseXML)
+	if err != nil {
+		return nil, err
+	}
 
+	authnResponse := new(Response)
+	err = xml.Unmarshal(bXML, authnResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	// There is a bug with XML namespaces in Go that's causing XML attributes with colons to not be roundtrip
+	// marshal and unmarshaled so we'll keep the original string around for validation.
+	authnResponse.originalString = string(bXML)
+	return authnResponse, nil
 }
 
-//GetLogoutUrl as SP, generate logout request url to perform slo
-func GetLogoutRequestUrl(settings ServiceProviderSettings, state string, nameID string, sessionIndex string) (string, error) {
+//GetLogoutRequestURL as SP, generate logout request url to perform slo
+func GetLogoutRequestURL(settings ServiceProviderSettings, state string, nameID string, sessionIndex string) (string, error) {
 	r := GetLogoutRequest(settings, nameID, sessionIndex)
 
 	// Sign the request
