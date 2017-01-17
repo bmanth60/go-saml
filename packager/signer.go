@@ -9,7 +9,7 @@ import (
 	"github.com/ma314smith/signedxml"
 )
 
-// Sign creates a signature for an XML document and returns it
+//Sign creates a signature for an XML document and returns it
 func Sign(xml string, privateKeyPath string) (string, error) {
 	pemString, err := ioutil.ReadFile(privateKeyPath)
 	if err != nil {
@@ -18,6 +18,8 @@ func Sign(xml string, privateKeyPath string) (string, error) {
 	return SignWithKey(xml, string(pemString))
 }
 
+//SignWithKey create signature for xml document using pem formatted
+//string representing x509 key. Returns signed xml document.
 func SignWithKey(xml string, pemKey string) (string, error) {
 	pemBlock, _ := pem.Decode([]byte(pemKey))
 	if pemBlock == nil {
@@ -42,7 +44,7 @@ func SignWithKey(xml string, pemKey string) (string, error) {
 	return samlSignedRequestXML, nil
 }
 
-// Verify validates the signature of an XML document
+//Verify validates the signature of an XML document
 func Verify(xml string, publicCertPath string) error {
 	pemString, err := ioutil.ReadFile(publicCertPath)
 	if err != nil {
@@ -52,6 +54,7 @@ func Verify(xml string, publicCertPath string) error {
 	return VerifyWithCert(xml, string(pemString))
 }
 
+//VerifyWithCert validate xml document using pem formatted string
 func VerifyWithCert(xml string, certPem string) error {
 	pemBlock, _ := pem.Decode([]byte(certPem))
 	if pemBlock == nil {

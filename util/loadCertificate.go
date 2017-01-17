@@ -22,6 +22,7 @@ func LoadCertificateFromString(cert string) string {
 	return NormalizeCertificate(cert)
 }
 
+// NormalizeCertificate check PEM certificate for headers and trim whitespaces
 func NormalizeCertificate(cert string) string {
 	re := regexp.MustCompile("---(.*)CERTIFICATE(.*)---")
 	cert = re.ReplaceAllString(cert, "")

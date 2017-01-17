@@ -7,6 +7,7 @@ import (
 	"github.com/RobotsAndPencils/go-saml/util"
 )
 
+//String get string representation of xml document
 func String(data interface{}) (string, error) {
 	b, err := xml.MarshalIndent(data, "", "    ")
 	if err != nil {
@@ -16,6 +17,7 @@ func String(data interface{}) (string, error) {
 	return string(b), nil
 }
 
+//SignedString sign the xml document and return string representation
 func SignedString(data interface{}, privateKeyPath string) (string, error) {
 	str, err := String(data)
 	if err != nil {
@@ -25,6 +27,7 @@ func SignedString(data interface{}, privateKeyPath string) (string, error) {
 	return Sign(str, privateKeyPath)
 }
 
+//SignedString get base64 encoded, xml signed string representation of xml document
 func EncodedSignedString(data interface{}, privateKeyPath string) (string, error) {
 	signed, err := SignedString(data, privateKeyPath)
 	if err != nil {
@@ -34,7 +37,7 @@ func EncodedSignedString(data interface{}, privateKeyPath string) (string, error
 	return b64XML, nil
 }
 
-//CompressedEncodedSignedStringFromKey sign string with sp key, compress, then base64 encode
+//CompressedEncodedSignedStringFromKey sign string with sp key, compress, then base64 encode the xml document
 func CompressedEncodedSignedStringFromKey(data interface{}, key string) (string, error) {
 	str, err := String(data)
 	if err != nil {
@@ -51,6 +54,7 @@ func CompressedEncodedSignedStringFromKey(data interface{}, key string) (string,
 	return b64XML, nil
 }
 
+//CompressedEncodedSignedString sign xml document, compress, then base64 encode the xml document
 func CompressedEncodedSignedString(data interface{}, privateKeyPath string) (string, error) {
 	signed, err := SignedString(data, privateKeyPath)
 	if err != nil {
@@ -61,6 +65,7 @@ func CompressedEncodedSignedString(data interface{}, privateKeyPath string) (str
 	return b64XML, nil
 }
 
+//EncodedString base64 encode xml document
 func EncodedString(data interface{}) (string, error) {
 	saml, err := String(data)
 	if err != nil {
@@ -70,6 +75,7 @@ func EncodedString(data interface{}) (string, error) {
 	return b64XML, nil
 }
 
+//CompressedEncodedString compress, then base64 encode the xml document
 func CompressedEncodedString(data interface{}) (string, error) {
 	saml, err := String(data)
 	if err != nil {
@@ -80,6 +86,7 @@ func CompressedEncodedString(data interface{}) (string, error) {
 	return b64XML, nil
 }
 
+//DecodeAndInflateString base64 decode and inflate string
 func DecodeAndInflateString(data string) ([]byte, error) {
 	compressedXML, err := DecodeString(data)
 	if err != nil {
@@ -89,6 +96,7 @@ func DecodeAndInflateString(data string) ([]byte, error) {
 	return bXML, nil
 }
 
+//DecodeString base64 decode string
 func DecodeString(data string) ([]byte, error) {
 	return base64.StdEncoding.DecodeString(data)
 }
