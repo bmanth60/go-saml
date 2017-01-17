@@ -7,10 +7,17 @@ import "github.com/RobotsAndPencils/go-saml/util"
 //If you need to configure multipe IDPs for an SP
 //then configure multiple instances of this object
 type Settings struct {
-	SP  ServiceProviderSettings
-	IDP IdentityProviderSettings
+	SP       ServiceProviderSettings
+	IDP      IdentityProviderSettings
+	Compress CompressionSettings
 
 	hasInit bool
+}
+
+//CompressionSettings to determine if requests and responses should be compressed
+type CompressionSettings struct {
+	Request  bool
+	Response bool
 }
 
 //ServiceProviderSettings provides settings to configure server acting as a SAML Service Provider.

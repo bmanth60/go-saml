@@ -1,6 +1,6 @@
 package saml
 
-// [WIP] This is the main auth class to coordinate typical calls
+// This is the main auth class to coordinate typical calls
 // for the sp and idp. It performs the following functions:
 //
 //SP
@@ -11,12 +11,9 @@ package saml
 //
 //IDP
 //Parse auth request
-//Create auth reponse
+//Create auth reponse TODO
 //Parse logout request
-//Create logout response
-
-// TODO
-//Load settings
+//Create logout response TODO
 
 import (
 	"crypto"
@@ -34,108 +31,151 @@ import (
 )
 
 //GetAuthnRequestURL as SP, generate authentication request url to perform sso
-func GetAuthnRequestURL() {
-	//Check settings for data
-	u, err := url.Parse(baseURL)
-	if err != nil {
-		return "", err
-	}
-
-	q := u.Query()
-	q.Add("SAMLRequest", b64XML)
-	q.Add("RelayState", state)
-	u.RawQuery = q.Encode()
-	return u.String(), nil
-
-	/*r := GetAuthnRequest()
-	r.NameIDPolicy.Format = settings.IDP.NameIDFormat
+func GetAuthnRequestURL(s Settings, state string) (string, error) {
+	r := GetAuthnRequest(s)
 
 	// Sign the request
-	b64XML, err := packager.CompressedEncodedSignedStringFromKey(r, settings.SP.privateKey)
+	b64XML, err := packager.CompressedEncodedSignedStringFromKey(r, s.SP.privateKey)
 	if err != nil {
 		return "", err
 	}
 
-	u, err := url.Parse(settings.IDP.SingleSignOnURL)
+	u, err := url.Parse(s.IDP.SingleSignOnURL)
 	if err != nil {
 		return "", err
 	}
 
-	q := u.Query()
-	q.Add("SAMLRequest", b64XML)
-	q.Add("RelayState", state)
-	q.Set("SigAlg", "http://www.w3.org/2000/09/xmldsig#rsa-sha1")
-
-	//Build signature string. Digest must be in this order.
-	sigstr := "SAMLRequest=" + url.QueryEscape(q.Get("SAMLRequest")) +
-		"&RelayState=" + url.QueryEscape(q.Get("RelayState")) +
-		"&SigAlg=" + url.QueryEscape(q.Get("SigAlg"))
-
-	sig, err := GetRequestSignature(sigstr, settings.SP.privateKey)
-	if err != nil {
-		return "", err
-	}
-
-	q.Set("Signature", sig)
-	u.RawQuery = q.Encode()
-	return u.String(), nil*/
+	return BuildRequestURL(s, u, state, b64XML)
 }
 
 //ParseAuthnRequest as IDP, parse incoming authentication request
-func ParseAuthnRequest() {
-	bXML, err := packager.DecodeAndInflateString(b64RequestXML)
-	bytesXML, err := packager.DecodeString(b64RequestXML)
+func ParseAuthnRequest(s Settings, b64RequestXML string) (*AuthnRequest, error) {
+	var err error
+	var bytesXML []byte
+
+	if s.Compress.Request {
+		bytesXML, err = packager.DecodeAndInflateString(b64RequestXML)
+	} else {
+		bytesXML, err = packager.DecodeString(b64RequestXML)
+	}
+
 	if err != nil {
 		return nil, err
 	}
 
-	authnRequest := new(AuthnRequest)
-	err = xml.Unmarshal(bytesXML, &authnRequest)
+	request := new(AuthnRequest)
+	err = xml.Unmarshal(bytesXML, request)
 	if err != nil {
 		return nil, err
 	}
 
 	// There is a bug with XML namespaces in Go that's causing XML attributes with colons to not be roundtrip
 	// marshal and unmarshaled so we'll keep the original string around for validation.
-	authnRequest.originalString = string(bytesXML)
-	return authnRequest, nil
+	request.originalString = string(bytesXML)
+	return request, nil
 }
 
 //ParseAuthnResponse as SP, parse incoming authentication response
-func ParseAuthnResponse() {
-	bytesXML, err := packager.DecodeString(b64ResponseXML)
-	bXML, err := packager.DecodeAndInflateString(b64ResponseXML)
+func ParseAuthnResponse(s Settings, b64ResponseXML string) (*Response, error) {
+	var err error
+	var bytesXML []byte
+
+	if s.Compress.Response {
+		bytesXML, err = packager.DecodeAndInflateString(b64ResponseXML)
+	} else {
+		bytesXML, err = packager.DecodeString(b64ResponseXML)
+	}
+
 	if err != nil {
 		return nil, err
 	}
 
-	authnResponse := new(Response)
-	err = xml.Unmarshal(bXML, authnResponse)
+	response := new(Response)
+	err = xml.Unmarshal(bytesXML, response)
 	if err != nil {
 		return nil, err
 	}
 
 	// There is a bug with XML namespaces in Go that's causing XML attributes with colons to not be roundtrip
 	// marshal and unmarshaled so we'll keep the original string around for validation.
-	authnResponse.originalString = string(bXML)
-	return authnResponse, nil
+	response.originalString = string(bytesXML)
+	return response, nil
 }
 
 //GetLogoutRequestURL as SP, generate logout request url to perform slo
-func GetLogoutRequestURL(settings ServiceProviderSettings, state string, nameID string, sessionIndex string) (string, error) {
-	r := GetLogoutRequest(settings, nameID, sessionIndex)
+func GetLogoutRequestURL(s Settings, state string, nameID string, sessionIndex string) (string, error) {
+	r := GetLogoutRequest(s, nameID, sessionIndex)
 
 	// Sign the request
-	b64XML, err := packager.CompressedEncodedSignedStringFromKey(r, settings.SP.privateKey)
+	b64XML, err := packager.CompressedEncodedSignedStringFromKey(r, s.SP.privateKey)
 	if err != nil {
 		return "", err
 	}
 
-	u, err := url.Parse(settings.IDP.SingleLogoutURL)
+	u, err := url.Parse(s.IDP.SingleLogoutURL)
 	if err != nil {
 		return "", err
 	}
 
+	return BuildRequestURL(s, u, state, b64XML)
+}
+
+//ParseLogoutRequest as IDP, parse incoming logout request
+func ParseLogoutRequest(s Settings, b64RequestXML string) (*LogoutRequest, error) {
+	var err error
+	var bytesXML []byte
+
+	if s.Compress.Request {
+		bytesXML, err = packager.DecodeAndInflateString(b64RequestXML)
+	} else {
+		bytesXML, err = packager.DecodeString(b64RequestXML)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	request := new(LogoutRequest)
+	err = xml.Unmarshal(bytesXML, request)
+	if err != nil {
+		return nil, err
+	}
+
+	// There is a bug with XML namespaces in Go that's causing XML attributes with colons to not be roundtrip
+	// marshal and unmarshaled so we'll keep the original string around for validation.
+	request.originalString = string(bytesXML)
+	return request, nil
+}
+
+//ParseLogoutResponse as SP, parse incoming logout response
+func ParseLogoutResponse(s Settings, b64ResponseXML string) (*Response, error) {
+	var err error
+	var bytesXML []byte
+
+	if s.Compress.Response {
+		bytesXML, err = packager.DecodeAndInflateString(b64ResponseXML)
+	} else {
+		bytesXML, err = packager.DecodeString(b64ResponseXML)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	response := new(Response)
+	err = xml.Unmarshal(bytesXML, response)
+	if err != nil {
+		return nil, err
+	}
+
+	// There is a bug with XML namespaces in Go that's causing XML attributes with colons to not be roundtrip
+	// marshal and unmarshaled so we'll keep the original string around for validation.
+	response.originalString = string(bytesXML)
+	return response, nil
+}
+
+//BuildRequestURL build request url with signature
+func BuildRequestURL(s Settings, u *url.URL, state string, b64XML string) (string, error) {
 	q := u.Query()
 	q.Add("SAMLRequest", b64XML)
 	q.Add("RelayState", state)
@@ -146,7 +186,7 @@ func GetLogoutRequestURL(settings ServiceProviderSettings, state string, nameID 
 		"&RelayState=" + url.QueryEscape(q.Get("RelayState")) +
 		"&SigAlg=" + url.QueryEscape(q.Get("SigAlg"))
 
-	sig, err := GetRequestSignature(sigstr, settings.SP.privateKey)
+	sig, err := GetRequestSignature(sigstr, s.SP.privateKey)
 	if err != nil {
 		return "", err
 	}
@@ -154,16 +194,6 @@ func GetLogoutRequestURL(settings ServiceProviderSettings, state string, nameID 
 	q.Set("Signature", sig)
 	u.RawQuery = q.Encode()
 	return u.String(), nil
-}
-
-//ParseLogoutRequest as IDP, parse incoming logout request
-func ParseLogoutRequest() {
-
-}
-
-//ParseLogoutResponse as SP, parse incoming logout response
-func ParseLogoutResponse() {
-
 }
 
 //GetRequestSignature for the request url

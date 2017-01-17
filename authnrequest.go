@@ -35,7 +35,7 @@ func (r *AuthnRequest) Validate(publicCertPath string) error {
 
 	// TODO more validation
 
-	err := Verify(r.originalString, publicCertPath)
+	err := packager.Verify(r.originalString, publicCertPath)
 	if err != nil {
 		return err
 	}
@@ -51,6 +51,7 @@ func GetAuthnRequest(s Settings) *AuthnRequest {
 	r.Destination = s.IDP.SingleSignOnURL
 	r.Issuer.URL = s.IDP.SingleSignOnDescriptorURL
 	r.Signature.KeyInfo.X509Data.X509Certificate.Cert = s.SPPublicCert()
+	r.NameIDPolicy.Format = s.IDP.NameIDFormat
 
 	if !s.SP.SignRequest {
 		r.SAMLSIG = ""

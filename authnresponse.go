@@ -175,7 +175,7 @@ func NewSignedResponse() *Response {
 				XMLName: xml.Name{
 					Local: "saml:Issuer",
 				},
-				Url: "", // caller must populate ar.AppSettings.AssertionConsumerServiceURL,
+				URL: "", // caller must populate ar.AppSettings.AssertionConsumerServiceURL,
 			},
 			Subject: Subject{
 				XMLName: xml.Name{

@@ -7,7 +7,7 @@ import (
 
 //GetEntityDescriptor get saml entity metadata XML as specified by
 //http://docs.oasis-open.org/security/saml/Post2.0/sstc-saml1x-metadata-cs-01.html
-func (s *ServiceProviderSettings) GetEntityDescriptor() (string, error) {
+func (s *Settings) GetEntityDescriptor() (string, error) {
 	d := EntityDescriptor{
 		XMLName: xml.Name{
 			Local: "md:EntityDescriptor",

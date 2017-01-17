@@ -3,47 +3,56 @@ package saml
 import (
 	"testing"
 
+	"github.com/RobotsAndPencils/go-saml/packager"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGetSignedRequest(t *testing.T) {
 	assert := assert.New(t)
-	sp := ServiceProviderSettings{
-		PublicCertPath:              "./certs/default.crt",
-		PrivateKeyPath:              "./certs/default.key",
-		IDPSSOURL:                   "http://www.onelogin.net",
-		IDPSSODescriptorURL:         "http://www.onelogin.net",
-		IDPPublicCertPath:           "./certs/default.crt",
-		AssertionConsumerServiceURL: "http://localhost:8000/auth/saml/name",
-		SPSignRequest:               true,
+	settings := Settings{
+		SP: ServiceProviderSettings{
+			PublicCertPath:              "./certs/default.crt",
+			PrivateKeyPath:              "./certs/default.key",
+			AssertionConsumerServiceURL: "http://localhost:8000/auth/saml/name",
+			SignRequest:                 true,
+		},
+		IDP: IdentityProviderSettings{
+			SingleSignOnURL:           "http://www.onelogin.net",
+			SingleSignOnDescriptorURL: "http://www.onelogin.net",
+			PublicCertPath:            "./certs/default.crt",
+		},
 	}
-	err := sp.Init()
+	err := settings.Init()
 	assert.NoError(err)
 
 	// Construct an AuthnRequest
-	authnRequest := sp.GetAuthnRequest()
-	signedXML, err := authnRequest.SignedString(sp.PrivateKeyPath)
+	authnRequest := GetAuthnRequest(settings)
+	signedXML, err := authnRequest.SignedString(settings.SP.PrivateKeyPath)
 	assert.NoError(err)
 	assert.NotEmpty(signedXML)
 
-	err = Verify(signedXML, sp.PublicCertPath)
+	err = packager.Verify(signedXML, settings.SP.PublicCertPath)
 	assert.NoError(err)
 }
 
 func TestGetUnsignedRequest(t *testing.T) {
 	assert := assert.New(t)
-	sp := ServiceProviderSettings{
-		IDPSSOURL:                   "http://www.onelogin.net",
-		IDPSSODescriptorURL:         "http://www.onelogin.net",
-		IDPPublicCertPath:           "./certs/default.crt",
-		AssertionConsumerServiceURL: "http://localhost:8000/auth/saml/name",
-		SPSignRequest:               false,
+	settings := Settings{
+		SP: ServiceProviderSettings{
+			AssertionConsumerServiceURL: "http://localhost:8000/auth/saml/name",
+			SignRequest:                 false,
+		},
+		IDP: IdentityProviderSettings{
+			SingleSignOnURL:           "http://www.onelogin.net",
+			SingleSignOnDescriptorURL: "http://www.onelogin.net",
+			PublicCertPath:            "./certs/default.crt",
+		},
 	}
-	err := sp.Init()
+	err := settings.Init()
 	assert.NoError(err)
 
 	// Construct an AuthnRequest
-	authnRequest := sp.GetAuthnRequest()
+	authnRequest := GetAuthnRequest(settings)
 	assert.NoError(err)
 	assert.NotEmpty(authnRequest)
 }

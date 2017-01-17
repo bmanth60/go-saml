@@ -8,7 +8,7 @@ import (
 )
 
 //NewLogoutRequest generate new logout request entity
-func NewLogoutRequest(sps ServiceProviderSettings) *LogoutRequest {
+func NewLogoutRequest() *LogoutRequest {
 	id := util.ID()
 	return &LogoutRequest{
 		RootXML: &RootXML{
