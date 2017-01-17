@@ -5,8 +5,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/RobotsAndPencils/go-saml/util"
 	"github.com/RobotsAndPencils/go-saml/packager"
+	"github.com/RobotsAndPencils/go-saml/util"
 )
 
 func ParseCompressedEncodedResponse(b64ResponseXML string) (*Response, error) {
@@ -14,7 +14,7 @@ func ParseCompressedEncodedResponse(b64ResponseXML string) (*Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	authnResponse := new(Response)
 	err = xml.Unmarshal(bXML, authnResponse)
 	if err != nil {

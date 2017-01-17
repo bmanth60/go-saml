@@ -133,7 +133,7 @@ type Extensions struct {
 type SPSSODescriptor struct {
 	XMLName                    xml.Name
 	AuthnRequestsSigned        bool   `xml:",attr"`
-	wantAssertionsSigned       bool   `xml:",attr"`
+	WantAssertionsSigned       bool   `xml:"wantAssertionsSigned,attr"`
 	ProtocolSupportEnumeration string `xml:"protocolSupportEnumeration,attr"`
 	SigningKeyDescriptor       KeyDescriptor
 	EncryptionKeyDescriptor    KeyDescriptor
@@ -274,6 +274,6 @@ type SAMLRoot struct {
 type LogoutRequest struct {
 	*SAMLRoot
 
-	NameID NameID `xml:"NameID"`
-	SessionIndex        string               `xml:"samlp:SessionIndex,omitempty"`
+	NameID       NameID `xml:"NameID"`
+	SessionIndex string `xml:"samlp:SessionIndex,omitempty"`
 }

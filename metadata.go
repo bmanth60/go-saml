@@ -13,7 +13,7 @@ func (s *ServiceProviderSettings) GetEntityDescriptor() (string, error) {
 		DS:       "http://www.w3.org/2000/09/xmldsig#",
 		XMLNS:    "urn:oasis:names:tc:SAML:2.0:metadata",
 		MD:       "urn:oasis:names:tc:SAML:2.0:metadata",
-		EntityId: s.EntityId,
+		EntityId: s.SP.EntityId,
 
 		Extensions: Extensions{
 			XMLName: xml.Name{
@@ -24,8 +24,8 @@ func (s *ServiceProviderSettings) GetEntityDescriptor() (string, error) {
 			MDRPI:  "urn:oasis:names:tc:SAML:metadata:rpi",
 		},
 		SPSSODescriptor: SPSSODescriptor{
-			AuthnRequestsSigned:        s.SPSignRequest,
-			wantAssertionsSigned:       s.SPSignRequest,
+			AuthnRequestsSigned:        s.SP.SignRequest,
+			WantAssertionsSigned:       s.SP.SignRequest,
 			ProtocolSupportEnumeration: "urn:oasis:names:tc:SAML:2.0:protocol",
 			SigningKeyDescriptor: KeyDescriptor{
 				XMLName: xml.Name{
@@ -45,7 +45,7 @@ func (s *ServiceProviderSettings) GetEntityDescriptor() (string, error) {
 							XMLName: xml.Name{
 								Local: "ds:X509Certificate",
 							},
-							Cert: s.PublicCert(),
+							Cert: s.SPPublicCert(),
 						},
 					},
 				},
@@ -68,7 +68,7 @@ func (s *ServiceProviderSettings) GetEntityDescriptor() (string, error) {
 							XMLName: xml.Name{
 								Local: "ds:X509Certificate",
 							},
-							Cert: s.PublicCert(),
+							Cert: s.SPPublicCert(),
 						},
 					},
 				},
@@ -78,7 +78,7 @@ func (s *ServiceProviderSettings) GetEntityDescriptor() (string, error) {
 					Local: "md:SingleLogoutService",
 				},
 				Binding:  "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
-				Location: s.SingleLogoutServiceUrl,
+				Location: s.SP.SingleLogoutServiceUrl,
 			},
 			AssertionConsumerServices: []AssertionConsumerService{
 				{
@@ -86,7 +86,7 @@ func (s *ServiceProviderSettings) GetEntityDescriptor() (string, error) {
 						Local: "md:AssertionConsumerService",
 					},
 					Binding:  "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
-					Location: s.AssertionConsumerServiceURL,
+					Location: s.SP.AssertionConsumerServiceURL,
 					Index:    "0",
 				},
 				{
@@ -94,7 +94,7 @@ func (s *ServiceProviderSettings) GetEntityDescriptor() (string, error) {
 						Local: "md:AssertionConsumerService",
 					},
 					Binding:  "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact",
-					Location: s.AssertionConsumerServiceURL,
+					Location: s.SP.AssertionConsumerServiceURL,
 					Index:    "1",
 				},
 			},

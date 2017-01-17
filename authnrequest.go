@@ -20,46 +20,9 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/RobotsAndPencils/go-saml/util"
 	"github.com/RobotsAndPencils/go-saml/packager"
+	"github.com/RobotsAndPencils/go-saml/util"
 )
-
-func ParseCompressedEncodedRequest(b64RequestXML string) (*AuthnRequest, error) {
-	bXML, err := packager.DecodeAndInflateString(b64RequestXML)
-	if err != nil {
-		return nil, err
-	}
-
-	authnRequest := new(AuthnRequest)
-	err = xml.Unmarshal(bXML, &authnRequest)
-	if err != nil {
-		return nil, err
-	}
-
-	// There is a bug with XML namespaces in Go that's causing XML attributes with colons to not be roundtrip
-	// marshal and unmarshaled so we'll keep the original string around for validation.
-	authnRequest.originalString = string(bXML)
-	return authnRequest, nil
-
-}
-
-func ParseEncodedRequest(b64RequestXML string) (*AuthnRequest, error) {
-	bytesXML, err := packager.DecodeString(b64RequestXML)
-	if err != nil {
-		return nil, err
-	}
-
-	authnRequest := new(AuthnRequest)
-	err = xml.Unmarshal(bytesXML, &authnRequest)
-	if err != nil {
-		return nil, err
-	}
-
-	// There is a bug with XML namespaces in Go that's causing XML attributes with colons to not be roundtrip
-	// marshal and unmarshaled so we'll keep the original string around for validation.
-	authnRequest.originalString = string(bytesXML)
-	return authnRequest, nil
-}
 
 func (r *AuthnRequest) Validate(publicCertPath string) error {
 	if r.Version != "2.0" {
@@ -81,69 +44,19 @@ func (r *AuthnRequest) Validate(publicCertPath string) error {
 }
 
 // GetSignedAuthnRequest returns a signed XML document that represents an AuthnRequest SAML document
-func (s *ServiceProviderSettings) GetAuthnRequest() *AuthnRequest {
+func GetAuthnRequest(s SAMLSettings) *AuthnRequest {
 	r := NewAuthnRequest()
-	r.AssertionConsumerServiceURL = s.AssertionConsumerServiceURL
-	r.Destination = s.IDPSSOURL
-	r.Issuer.Url = s.IDPSSODescriptorURL
-	r.Signature.KeyInfo.X509Data.X509Certificate.Cert = s.PublicCert()
+	r.AssertionConsumerServiceURL = s.SP.AssertionConsumerServiceURL
+	r.Destination = s.IDP.SingleSignOnURL
+	r.Issuer.Url = s.IDP.SingleSignOnDescriptorURL
+	r.Signature.KeyInfo.X509Data.X509Certificate.Cert = s.SPPublicCert()
 
-	if !s.SPSignRequest {
+	if !s.SP.SignRequest {
 		r.SAMLSIG = ""
 		r.Signature = nil
 	}
 
 	return r
-}
-
-// GetAuthnRequestURL generate a URL for the AuthnRequest to the IdP with the SAMLRequest parameter encoded
-func GetAuthnRequestURL(baseURL string, b64XML string, state string) (string, error) {
-	u, err := url.Parse(baseURL)
-	if err != nil {
-		return "", err
-	}
-
-	q := u.Query()
-	q.Add("SAMLRequest", b64XML)
-	q.Add("RelayState", state)
-	u.RawQuery = q.Encode()
-	return u.String(), nil
-}
-
-// GetSignedAuthnRequestURL generate a URL for the AuthnRequest to the IdP with the SAMLRequest parameter encoded
-func GetSignedAuthnRequestURL(settings ServiceProviderSettings, state string) (string, error) {
-	r := settings.GetAuthnRequest()
-	r.NameIDPolicy.Format = settings.NameIDFormat
-
-	// Sign the request
-	b64XML, err := packager.CompressedEncodedSignedStringFromKey(r, settings.privateKey)
-	if err != nil {
-		return "", err
-	}
-
-	u, err := url.Parse(settings.IDPSSOURL)
-	if err != nil {
-		return "", err
-	}
-
-	q := u.Query()
-	q.Add("SAMLRequest", b64XML)
-	q.Add("RelayState", state)
-	q.Set("SigAlg", "http://www.w3.org/2000/09/xmldsig#rsa-sha1")
-
-	//Build signature string. Digest must be in this order.
-	sigstr := "SAMLRequest=" + url.QueryEscape(q.Get("SAMLRequest")) +
-		"&RelayState=" + url.QueryEscape(q.Get("RelayState")) +
-		"&SigAlg=" + url.QueryEscape(q.Get("SigAlg"))
-
-	sig, err := GetRequestSignature(sigstr, settings.privateKey)
-	if err != nil {
-		return "", err
-	}
-
-	q.Set("Signature", sig)
-	u.RawQuery = q.Encode()
-	return u.String(), nil
 }
 
 func NewAuthnRequest() *AuthnRequest {
@@ -263,29 +176,4 @@ func NewAuthnRequest() *AuthnRequest {
 			},
 		},
 	}
-}
-
-func (r *AuthnRequest) String() (string, error) {
-	return packager.String(r)
-}
-
-func (r *AuthnRequest) SignedString(privateKeyPath string) (string, error) {
-	return packager.SignedString(r, privateKeyPath)
-}
-
-// GetAuthnRequestURL generate a URL for the AuthnRequest to the IdP with the SAMLRequst parameter encoded
-func (r *AuthnRequest) EncodedSignedString(privateKeyPath string) (string, error) {
-	return packager.EncodedSignedString(r, privateKeyPath)
-}
-
-func (r *AuthnRequest) CompressedEncodedSignedString(privateKeyPath string) (string, error) {
-	return packager.CompressedEncodedSignedString(r, privateKeyPath)
-}
-
-func (r *AuthnRequest) EncodedString() (string, error) {
-	return packager.EncodedString(r)
-}
-
-func (r *AuthnRequest) CompressedEncodedString() (string, error) {
-	return packager.CompressedEncodedString(r)
 }

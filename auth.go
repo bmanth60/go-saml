@@ -1,6 +1,6 @@
 package saml
 
-// This is the main auth class to coordinate typical calls
+// [WIP] This is the main auth class to coordinate typical calls
 // for the sp and idp. It performs the following functions:
 //
 //SP
@@ -18,7 +18,7 @@ package saml
 // TODO
 //Load settings
 
-import(
+import (
 	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
@@ -29,18 +29,126 @@ import(
 	"encoding/pem"
 )
 
-type SAMLRequest interface {
-	ParseCompressedEncodedRequest(b64RequestXML string) error
-	ParseEncodedRequest(b64RequestXML string) error
-	GetRequestUrl(settings ServiceProviderSettings, state string) (string, error)
+//GetAuthnRequestURL as SP, generate authentication request url to perform sso
+func GetAuthnRequestURL() {
+	//Check settings for data
+	u, err := url.Parse(baseURL)
+	if err != nil {
+		return "", err
+	}
+
+	q := u.Query()
+	q.Add("SAMLRequest", b64XML)
+	q.Add("RelayState", state)
+	u.RawQuery = q.Encode()
+	return u.String(), nil
+
+	r := GetAuthnRequest()
+	r.NameIDPolicy.Format = settings.IDP.NameIDFormat
+
+	// Sign the request
+	b64XML, err := packager.CompressedEncodedSignedStringFromKey(r, settings.SP.privateKey)
+	if err != nil {
+		return "", err
+	}
+
+	u, err := url.Parse(settings.IDP.SingleSignOnURL)
+	if err != nil {
+		return "", err
+	}
+
+	q := u.Query()
+	q.Add("SAMLRequest", b64XML)
+	q.Add("RelayState", state)
+	q.Set("SigAlg", "http://www.w3.org/2000/09/xmldsig#rsa-sha1")
+
+	//Build signature string. Digest must be in this order.
+	sigstr := "SAMLRequest=" + url.QueryEscape(q.Get("SAMLRequest")) +
+		"&RelayState=" + url.QueryEscape(q.Get("RelayState")) +
+		"&SigAlg=" + url.QueryEscape(q.Get("SigAlg"))
+
+	sig, err := GetRequestSignature(sigstr, settings.SP.privateKey)
+	if err != nil {
+		return "", err
+	}
+
+	q.Set("Signature", sig)
+	u.RawQuery = q.Encode()
+	return u.String(), nil
 }
 
-type SAMLResponse interface {
-	ParseCompressedEncodedResponse(b64ResponseXML string) (*Response, error)
-	ParseEncodedResponse(b64ResponseXML string) (*Response, error)
+//ParseAuthnRequest as IDP, parse incoming authentication request
+func ParseAuthnRequest() {
+	bXML, err := packager.DecodeAndInflateString(b64RequestXML)
+	bytesXML, err := packager.DecodeString(b64RequestXML)
+	if err != nil {
+		return nil, err
+	}
+
+	authnRequest := new(AuthnRequest)
+	err = xml.Unmarshal(bytesXML, &authnRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	// There is a bug with XML namespaces in Go that's causing XML attributes with colons to not be roundtrip
+	// marshal and unmarshaled so we'll keep the original string around for validation.
+	authnRequest.originalString = string(bytesXML)
+	return authnRequest, nil
 }
 
-func GetRequestSignature(data string, key string) (sig string, err error) {
+//ParseAuthnResponse as SP, parse incoming authentication response
+func ParseAuthnResponse() {
+
+}
+
+//GetLogoutUrl as SP, generate logout request url to perform slo
+func GetLogoutRequestUrl(settings ServiceProviderSettings, state string, nameID string, sessionIndex string) (string, error) {
+	r := GetLogoutRequest(settings, nameID, sessionIndex)
+
+	// Sign the request
+	b64XML, err := packager.CompressedEncodedSignedStringFromKey(r, settings.SP.privateKey)
+	if err != nil {
+		return "", err
+	}
+
+	u, err := url.Parse(settings.IDP.SingleLogoutURL)
+	if err != nil {
+		return "", err
+	}
+
+	q := u.Query()
+	q.Add("SAMLRequest", b64XML)
+	q.Add("RelayState", state)
+	q.Set("SigAlg", "http://www.w3.org/2000/09/xmldsig#rsa-sha1")
+
+	//Build signature string. Digest must be in this order.
+	sigstr := "SAMLRequest=" + url.QueryEscape(q.Get("SAMLRequest")) +
+		"&RelayState=" + url.QueryEscape(q.Get("RelayState")) +
+		"&SigAlg=" + url.QueryEscape(q.Get("SigAlg"))
+
+	sig, err := GetRequestSignature(sigstr, settings.SP.privateKey)
+	if err != nil {
+		return "", err
+	}
+
+	q.Set("Signature", sig)
+	u.RawQuery = q.Encode()
+	return u.String(), nil
+}
+
+//ParseLogoutRequest as IDP, parse incoming logout request
+func ParseLogoutRequest() {
+
+}
+
+//ParseLogoutResponse as SP, parse incoming logout response
+func ParseLogoutResponse() {
+
+}
+
+//GetRequestSignature for the request url
+func GetRequestSignature(data string, key string) (string, error) {
 	block, _ := pem.Decode([]byte(key))
 	if block == nil {
 		return "", ErrPEMFormat

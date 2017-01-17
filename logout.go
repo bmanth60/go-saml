@@ -1,15 +1,16 @@
 package saml
 
 import (
-	"time"
 	"encoding/xml"
 	"net/url"
+	"time"
 
-	"github.com/RobotsAndPencils/go-saml/util"
 	"github.com/RobotsAndPencils/go-saml/packager"
+	"github.com/RobotsAndPencils/go-saml/util"
 )
 
-func NewLogoutRequest(sps ServiceProviderSettings) *LogoutRequest{
+//NewLogoutRequest generate new logout request entity
+func NewLogoutRequest(sps ServiceProviderSettings) *LogoutRequest {
 	id := util.ID()
 	return &LogoutRequest{
 		SAMLRoot: &SAMLRoot{
@@ -112,59 +113,17 @@ func NewLogoutRequest(sps ServiceProviderSettings) *LogoutRequest{
 	}
 }
 
-func (r *LogoutRequest) ParseCompressedEncodedRequest(b64RequestXML string) error {
-
-
-	return nil
-}
-
-func (r *LogoutRequest) ParseEncodedRequest(b64RequestXML string) error {
-	return nil
-}
-
-func (r *LogoutRequest) GetRequestUrl(settings ServiceProviderSettings, state string, nameID string, sessionIndex string) (string, error) {
-	r.GetRequest(settings, nameID, sessionIndex)
-
-	// Sign the request
-	b64XML, err := packager.CompressedEncodedSignedStringFromKey(r, settings.privateKey)
-	if err != nil {
-		return "", err
-	}
-
-	u, err := url.Parse(settings.IDPSingleLogoutURL)
-	if err != nil {
-		return "", err
-	}
-
-	q := u.Query()
-	q.Add("SAMLRequest", b64XML)
-	q.Add("RelayState", state)
-	q.Set("SigAlg", "http://www.w3.org/2000/09/xmldsig#rsa-sha1")
-
-	//Build signature string. Digest must be in this order.
-	sigstr := "SAMLRequest=" + url.QueryEscape(q.Get("SAMLRequest")) +
-		"&RelayState=" + url.QueryEscape(q.Get("RelayState")) +
-		"&SigAlg=" + url.QueryEscape(q.Get("SigAlg"))
-
-	sig, err := GetRequestSignature(sigstr, settings.privateKey)
-	if err != nil {
-		return "", err
-	}
-
-	q.Set("Signature", sig)
-	u.RawQuery = q.Encode()
-	return u.String(), nil
-}
-
-func (r *LogoutRequest) GetRequest(settings ServiceProviderSettings, nameID string, sessionIndex string) *LogoutRequest {
-	r.Destination = settings.IDPSingleLogoutURL
-	r.Issuer.Url = settings.EntityId
-	r.Signature.KeyInfo.X509Data.X509Certificate.Cert = settings.PublicCert()
-	r.NameID.Format = settings.NameIDFormat
+//GetLogoutRequest entity as specified by provided parameters
+func GetLogoutRequest(settings SAMLSettings, nameID string, sessionIndex string) *LogoutRequest {
+	r := NewLogoutRequest()
+	r.Destination = settings.IDP.SingleLogoutURL
+	r.Issuer.Url = settings.SP.EntityId
+	r.Signature.KeyInfo.X509Data.X509Certificate.Cert = settings.SPPublicCert()
+	r.NameID.Format = settings.IDP.NameIDFormat
 	r.NameID.Value = nameID
 	r.SessionIndex = sessionIndex
 
-	if !settings.SPSignRequest {
+	if !settings.SP.SignRequest {
 		r.SAMLSIG = ""
 		r.Signature = nil
 	}
