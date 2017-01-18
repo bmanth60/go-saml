@@ -4,7 +4,11 @@ package saml
 //SAML 2.0 specifications. More details can be found:
 //http://docs.oasis-open.org/security/saml/v2.0/sstc-saml-approved-errata-2.0.html
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+
+	"github.com/RobotsAndPencils/go-saml/packager"
+)
 
 //AuthnRequest saml authentication request
 type AuthnRequest struct {
@@ -45,91 +49,6 @@ type AuthnContextClassRef struct {
 	XMLName   xml.Name
 	SAML      string `xml:"xmlns:saml,attr"`
 	Transport string `xml:",innerxml"`
-}
-
-//Signature signature for request/response
-type Signature struct {
-	XMLName        xml.Name
-	ID             string `xml:"Id,attr"`
-	SignedInfo     SignedInfo
-	SignatureValue SignatureValue
-	KeyInfo        KeyInfo
-}
-
-//SignedInfo signature information
-type SignedInfo struct {
-	XMLName                xml.Name
-	CanonicalizationMethod CanonicalizationMethod
-	SignatureMethod        SignatureMethod
-	SamlsigReference       SamlsigReference
-}
-
-//SignatureValue signature information data
-type SignatureValue struct {
-	XMLName xml.Name
-	Value   string `xml:",innerxml"`
-}
-
-//KeyInfo key information for signature
-type KeyInfo struct {
-	XMLName  xml.Name
-	X509Data X509Data `xml:",innerxml"`
-}
-
-//CanonicalizationMethod TODO needs description
-type CanonicalizationMethod struct {
-	XMLName   xml.Name
-	Algorithm string `xml:"Algorithm,attr"`
-}
-
-//SignatureMethod Algorithm for signature
-type SignatureMethod struct {
-	XMLName   xml.Name
-	Algorithm string `xml:"Algorithm,attr"`
-}
-
-//SamlsigReference TODO needs description
-type SamlsigReference struct {
-	XMLName      xml.Name
-	URI          string       `xml:"URI,attr"`
-	Transforms   Transforms   `xml:",innerxml"`
-	DigestMethod DigestMethod `xml:",innerxml"`
-	DigestValue  DigestValue  `xml:",innerxml"`
-}
-
-//X509Data X.509 formatted data
-type X509Data struct {
-	XMLName         xml.Name
-	X509Certificate X509Certificate `xml:",innerxml"`
-}
-
-//Transforms set of transforms applied to signature
-type Transforms struct {
-	XMLName   xml.Name
-	Transform Transform
-}
-
-//DigestMethod algorithm used to create signature digest
-type DigestMethod struct {
-	XMLName   xml.Name
-	Algorithm string `xml:"Algorithm,attr"`
-}
-
-//DigestValue resulting signature digest
-type DigestValue struct {
-	XMLName xml.Name
-}
-
-//X509Certificate X.509 formatted certificate
-type X509Certificate struct {
-	XMLName xml.Name
-	Cert    string `xml:",innerxml"`
-}
-
-//Transform algorithm transform for signature
-type Transform struct {
-	XMLName   xml.Name
-	Algorithm string `xml:"Algorithm,attr"`
 }
 
 //EntityDescriptor saml metadata descriptor
@@ -176,8 +95,8 @@ type EntityAttributes struct {
 //KeyDescriptor TODO needs description
 type KeyDescriptor struct {
 	XMLName xml.Name
-	Use     string  `xml:"use,attr"`
-	KeyInfo KeyInfo `xml:"KeyInfo"`
+	Use     string           `xml:"use,attr"`
+	KeyInfo packager.KeyInfo `xml:"KeyInfo"`
 }
 
 //SingleLogoutService logout service metadata
@@ -214,7 +133,7 @@ type Assertion struct {
 	SAML               string `xml:"saml,attr"`
 	IssueInstant       string `xml:"IssueInstant,attr"`
 	Issuer             Issuer `xml:"Issuer"`
-	Signature          Signature
+	Signature          packager.Signature
 	Subject            Subject
 	Conditions         Conditions
 	AttributeStatement AttributeStatement
@@ -302,15 +221,15 @@ type AuthnStatement struct {
 //RootXML saml root xml data
 type RootXML struct {
 	XMLName        xml.Name
-	SAMLP          string     `xml:"xmlns:samlp,attr"`
-	SAML           string     `xml:"xmlns:saml,attr"`
-	SAMLSIG        string     `xml:"xmlns:samlsig,attr,omitempty"`
-	ID             string     `xml:"ID,attr"`
-	Version        string     `xml:"Version,attr"`
-	Destination    string     `xml:"Destination,attr"`
-	IssueInstant   string     `xml:"IssueInstant,attr"`
-	Issuer         Issuer     `xml:"Issuer"`
-	Signature      *Signature `xml:"Signature,omitempty"`
+	SAMLP          string              `xml:"xmlns:samlp,attr"`
+	SAML           string              `xml:"xmlns:saml,attr"`
+	SAMLSIG        string              `xml:"xmlns:samlsig,attr,omitempty"`
+	ID             string              `xml:"ID,attr"`
+	Version        string              `xml:"Version,attr"`
+	Destination    string              `xml:"Destination,attr"`
+	IssueInstant   string              `xml:"IssueInstant,attr"`
+	Issuer         Issuer              `xml:"Issuer"`
+	Signature      *packager.Signature `xml:"Signature,omitempty"`
 	originalString string
 }
 

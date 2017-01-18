@@ -3,11 +3,93 @@ package packager
 import (
 	"crypto/x509"
 	"encoding/pem"
+	"encoding/xml"
 	"errors"
 	"io/ioutil"
 
 	"github.com/ma314smith/signedxml"
 )
+
+//GetKeyInfoEntity for specified namespace
+func GetKeyInfoEntity(namespace string) KeyInfo {
+	return KeyInfo{
+		XMLName: xml.Name{
+			Local: namespace + ":KeyInfo",
+		},
+		X509Data: X509Data{
+			XMLName: xml.Name{
+				Local: namespace + ":X509Data",
+			},
+			X509Certificate: X509Certificate{
+				XMLName: xml.Name{
+					Local: namespace + ":X509Certificate",
+				},
+				Cert: "", // caller must populate cert,
+			},
+		},
+	}
+}
+
+//GetSignatureEntity get an xml signature entity
+func GetSignatureEntity(id string) *Signature {
+	return &Signature{
+		XMLName: xml.Name{
+			Local: "samlsig:Signature",
+		},
+		ID: "Signature1",
+		SignedInfo: SignedInfo{
+			XMLName: xml.Name{
+				Local: "samlsig:SignedInfo",
+			},
+			CanonicalizationMethod: CanonicalizationMethod{
+				XMLName: xml.Name{
+					Local: "samlsig:CanonicalizationMethod",
+				},
+				Algorithm: "http://www.w3.org/2001/10/xml-exc-c14n#",
+			},
+			SignatureMethod: SignatureMethod{
+				XMLName: xml.Name{
+					Local: "samlsig:SignatureMethod",
+				},
+				Algorithm: "http://www.w3.org/2000/09/xmldsig#rsa-sha1",
+			},
+			SamlsigReference: SamlsigReference{
+				XMLName: xml.Name{
+					Local: "samlsig:Reference",
+				},
+				URI: "#" + id,
+				Transforms: Transforms{
+					XMLName: xml.Name{
+						Local: "samlsig:Transforms",
+					},
+					Transform: Transform{
+						XMLName: xml.Name{
+							Local: "samlsig:Transform",
+						},
+						Algorithm: "http://www.w3.org/2000/09/xmldsig#enveloped-signature",
+					},
+				},
+				DigestMethod: DigestMethod{
+					XMLName: xml.Name{
+						Local: "samlsig:DigestMethod",
+					},
+					Algorithm: "http://www.w3.org/2000/09/xmldsig#sha1",
+				},
+				DigestValue: DigestValue{
+					XMLName: xml.Name{
+						Local: "samlsig:DigestValue",
+					},
+				},
+			},
+		},
+		SignatureValue: SignatureValue{
+			XMLName: xml.Name{
+				Local: "samlsig:SignatureValue",
+			},
+		},
+		KeyInfo: GetKeyInfoEntity("samlsig"),
+	}
+}
 
 //Sign creates a signature for an XML document and returns it
 func Sign(xml string, privateKeyPath string) (string, error) {

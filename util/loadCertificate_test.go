@@ -9,7 +9,7 @@ import (
 )
 
 func TestLoadCertificateFile(t *testing.T) {
-	cert, err := util.LoadCertificate("../certs/default.crt")
+	cert, err := util.LoadCertificate("/go/src/github.com/RobotsAndPencils/go-saml/certs/default.crt")
 	assert.NoError(t, err)
 
 	//All newlines should have been removed

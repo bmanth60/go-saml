@@ -3,6 +3,8 @@ package saml
 import (
 	"encoding/xml"
 	"fmt"
+
+	"github.com/RobotsAndPencils/go-saml/packager"
 )
 
 //GetEntityDescriptor get saml entity metadata XML as specified by
@@ -34,46 +36,16 @@ func (s *Settings) GetEntityDescriptor() (string, error) {
 					Local: "md:KeyDescriptor",
 				},
 
-				Use: "signing",
-				KeyInfo: KeyInfo{
-					XMLName: xml.Name{
-						Local: "ds:KeyInfo",
-					},
-					X509Data: X509Data{
-						XMLName: xml.Name{
-							Local: "ds:X509Data",
-						},
-						X509Certificate: X509Certificate{
-							XMLName: xml.Name{
-								Local: "ds:X509Certificate",
-							},
-							Cert: s.SPPublicCert(),
-						},
-					},
-				},
+				Use:     "signing",
+				KeyInfo: packager.GetKeyInfoEntity("ds"),
 			},
 			EncryptionKeyDescriptor: KeyDescriptor{
 				XMLName: xml.Name{
 					Local: "md:KeyDescriptor",
 				},
 
-				Use: "encryption",
-				KeyInfo: KeyInfo{
-					XMLName: xml.Name{
-						Local: "ds:KeyInfo",
-					},
-					X509Data: X509Data{
-						XMLName: xml.Name{
-							Local: "ds:X509Data",
-						},
-						X509Certificate: X509Certificate{
-							XMLName: xml.Name{
-								Local: "ds:X509Certificate",
-							},
-							Cert: s.SPPublicCert(),
-						},
-					},
-				},
+				Use:     "encryption",
+				KeyInfo: packager.GetKeyInfoEntity("ds"),
 			},
 			SingleLogoutService: SingleLogoutService{
 				XMLName: xml.Name{
@@ -102,6 +74,10 @@ func (s *Settings) GetEntityDescriptor() (string, error) {
 			},
 		},
 	}
+
+	d.SPSSODescriptor.SigningKeyDescriptor.KeyInfo.X509Data.X509Certificate.Cert = s.SPPublicCert()
+	d.SPSSODescriptor.EncryptionKeyDescriptor.KeyInfo.X509Data.X509Certificate.Cert = s.SPPublicCert()
+
 	b, err := xml.MarshalIndent(d, "", "    ")
 	if err != nil {
 		return "", err
