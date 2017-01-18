@@ -104,7 +104,7 @@ func ParseAuthnResponse(s Settings, b64ResponseXML string) (*Response, error) {
 
 //GetLogoutRequestURL as SP, generate logout request url to perform slo
 func GetLogoutRequestURL(s Settings, state string, nameID string, sessionIndex string) (string, error) {
-	r := GetLogoutRequest(s, nameID, sessionIndex)
+	r := ApplyLogoutRequest(&s, NewLogoutRequest(), nameID, sessionIndex)
 
 	// Sign the request
 	b64XML, err := packager.CompressedEncodedSignedStringFromKey(r, s.SPPrivateKey())

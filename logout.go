@@ -38,18 +38,23 @@ func NewLogoutRequest() *LogoutRequest {
 			Format: "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified",
 			Value:  "",
 		},
+		SessionIndex: SessionIndex{
+			XMLName: xml.Name{
+				Local: "samlp:SessionIndex",
+			},
+			Value: "",
+		},
 	}
 }
 
-//GetLogoutRequest entity as specified by provided parameters
-func GetLogoutRequest(settings Settings, nameID string, sessionIndex string) *LogoutRequest {
-	r := NewLogoutRequest()
+//ApplyLogoutRequest entity as specified by provided parameters
+func ApplyLogoutRequest(settings *Settings, r *LogoutRequest, nameID string, sessionIndex string) *LogoutRequest {
 	r.Destination = settings.IDP.SingleLogoutURL
 	r.Issuer.URL = settings.SP.EntityID
 	r.Signature.KeyInfo.X509Data.X509Certificate.Cert = settings.SPPublicCert()
 	r.NameID.Format = settings.IDP.NameIDFormat
 	r.NameID.Value = nameID
-	r.SessionIndex = sessionIndex
+	r.SessionIndex.Value = sessionIndex
 
 	if !settings.SP.SignRequest {
 		r.SAMLSIG = ""

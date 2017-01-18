@@ -237,6 +237,12 @@ type RootXML struct {
 type LogoutRequest struct {
 	*RootXML
 
-	NameID       NameID `xml:"NameID"`
-	SessionIndex string `xml:"samlp:SessionIndex,omitempty"`
+	NameID       NameID       `xml:"NameID"`
+	SessionIndex SessionIndex `xml:",omitempty"`
+}
+
+//SessionIndex request session information
+type SessionIndex struct {
+	XMLName xml.Name
+	Value   string `xml:",innerxml"`
 }
