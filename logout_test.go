@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/RobotsAndPencils/go-saml"
-	"github.com/RobotsAndPencils/go-saml/packager"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,9 +14,112 @@ func TestApplyLogoutRequest(t *testing.T) {
 	request.IssueInstant = "statictime"
 	request.Signature.SignedInfo.SamlsigReference.URI = "#id"
 
-	result, err := packager.CompressedEncodedSignedStringFromKey(request, settings.SPPrivateKey())
+	result, err := request.SignedString(&settings)
 	assert.NoError(t, err)
 
-	expected := `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`
-	assert.Equal(t, expected, result)
+	expected := `
+	<LogoutRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:samlsig="http://www.w3.org/2000/09/xmldsig#" ID="id" Version="2.0" Destination="http://www.onelogin.net" IssueInstant="statictime">
+	    <saml:Issuer xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"/>
+	    <samlsig:Signature Id="Signature1">
+	        <samlsig:SignedInfo xmlns:samlsig="http://www.w3.org/2000/09/xmldsig#">
+	            <samlsig:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+	            <samlsig:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+	            <samlsig:Reference URI="#id">
+	                <samlsig:Transforms>
+	                    <samlsig:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+	                </samlsig:Transforms>
+	                <samlsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+	                <samlsig:DigestValue>G/ibCZGQcZgDO+q/PmNtGGh36Cw=</samlsig:DigestValue>
+	            </samlsig:Reference>
+	        </samlsig:SignedInfo>
+	        <samlsig:SignatureValue>xOWhUiCGD6WXCkmdXZCUEAn6ic7Z6Fb+Hdl3csdIuh6/f5pWAzYDyqshofs07SIpAmuy3BwUu4XYBkSxqpVxVNcmb+J5EYwEdEM4g0KgdKi/g6LwRoTXtlcB+ReY9lEXFVzI7zupCtraHq4aHvpygTTAkIeQSU0Mi6+b6wmJWEG1pmSb5YiEOpvpM0jPlHwgVf8DE6mdW8oTrl01L4nuQReW7KYDxiw7gJ5kZmxziqB9kramNKFiw/KxMrI8EwekMfSk2ucmRFTgjx7a2m9SijHj1Q8FxCgmgR8LCd0KivEIv/P5jf6RIVMolOq0tzhk3QB5BLchmYbN4QztT9Ccs1rllTpnkbRrnjNKRO7bGp9Iwz+t8oWuz06vHIrw0VCXz+XKItoQQLhNnmDft6b+yL4ix4E9hmt6B3YIoA99dClqhickNXHBG+u5pWH/ZCfb1eMDIpbEp4LjlQK3iJJGbithcbgGP0EVcdBgA7x6G68zZOWCgpladEeS/SjztE0ZY+PBFR8MqZq9rCAgezxfXe4KPou1g7RbbyUFu8MAWxFl+Q9uHHkx5vNIst7LUbPAXr8vFOUG+Lbz1Fh9kfjc/3KVeVCXGgsJJJlb9aTo7e72dBsEuFd+X7sSQoVGMcb4+rFxPpjHaiaKqhgneV8CiDpyynKdSEa0R+TXDaq9E1I=</samlsig:SignatureValue>
+	        <samlsig:KeyInfo>
+	            <samlsig:X509Data>
+	                <samlsig:X509Certificate>MIIFYTCCA0mgAwIBAgIJAI1a1evtQYDkMA0GCSqGSIb3DQEBBQUAME8xCzAJBgNVBAYTAkZSMQ4wDAYDVQQHEwVQYXJpczEOMAwGA1UEChMFRWtpbm8xDzANBgNVBAsTBkRldk9wczEPMA0GA1UEAxMGZ29zYW1sMB4XDTE1MDcyMDIyNDE1OFoXDTI1MDcxNzIyNDE1OFowTzELMAkGA1UEBhMCRlIxDjAMBgNVBAcTBVBhcmlzMQ4wDAYDVQQKEwVFa2lubzEPMA0GA1UECxMGRGV2T3BzMQ8wDQYDVQQDEwZnb3NhbWwwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQDoo/DTqWoyJyXR0K+hF4pw4qBkaLL0gbbKoiKH+7wvdzHONOoFBfF5NQj02M4JJyeOQ6+hHYV4QjtUG41zMf1XoH/U6Ey/oURkuCJJCGhW9AyD+A4WP4YS4Ag/uN7o0P3nuj7hJipefY1Bzmg2n89iHDcpHvwKTtVWZYdj6Dgbwh9ZH9QiRRRp+GZHXu7nW+VCZM0mE+9qjxK4Mw+KEDD6LIgSOAzRLWLyUmb2Kwvc++DhwDtIoThVHYoNd4Sk9j6/4B3DmPa83i/1dZKyFaMCDUn7+i6KhwIWbGfg6uQMM8G6XzF4V5x5agmg8DK24VXs3yb1lOIUczNVq4ZHkApc4jwHWiXncab88UnDPG7pVm87whaMghWNwrYAt//QEInExkxjNhWwxNFlelg/8b9fUsdH58FeZiZ+mNnwACXnggmZEE+lUX5Fh8l79bke+dnQbJAhQfi+OhmNlqmc+ouKDPYqk0/IC9q/3Tg65Ej9Miq918IAvQAVtlwwwp6I5/02Aa5iqZozBTUXYqWE/qXixlpWh2tP5ljecgGazuw58tGj2+nXS9DA9wVgGUAl4xJFO/s8emna52lSPzwvcr6j+BMifXHr0WBIEcTbtzXhxUpfC6IC14yfPOf8g4WKKgg1Wq3H4dGiE11y66ceYeh1RZlWXq/JEtJ1FVLoGq4qLwIDAQABo0AwPjA8BgNVHREENTAzghBsb2dzLmV4YW1wbGUuY29tghNtZXRyaWNzLmV4YW1wbGUuY29thwTAqAABhwQKAAAyMA0GCSqGSIb3DQEBBQUAA4ICAQAcaLdziL6dNZ3lXtm3nsI9ceSVwp2yKfpsswjs524bOsLK97Ucf4hhlh1bq5hywWbm85N7iuxdpBuhSmeJ94ryFAPDUkhR1Mzcl48c6R8tPbJVhabhbfg+uIHi4BYUA0olesdsyTOsRHprM4iV+PlKZ85SQT04ZNyaqIDzmNEP7YXDl/Wl3Q0N5E1UyGfDTBxo07srqrAM2E5X7hN9bwdZX0Hbo/C4q3wgRHAts/wJXXWSSTe1jbIWYXemEkwAEd01BiMBj1LYK/sJ8s4fONdLxIyKqLUh1Ja46moqpgl5AHuPbqnwPdgGGvEdiBzz5ppHs0wXFopk+J4rzYRhya6a3BMXiDjg+YOSwFgCysmWmCrxoImmfcQWUZJy5eMow+hBBiKgT2DxggqVzReN3C7uwsFZLZCsv8+MjvFQz52oEp/GWqFepggFQiRIK7/QmwcsDdz6zBobZJaJstq3R2mHYkhaVUIOqEuqyD2N7qms8bek7xzq6F9KkYLkPK/d2Crkxq1bnvM7oO8IsA6vHdTexfZ1SRPf7Mxpg8DMV788qE09BDZ5mLFOkRbwFY7MHRX6Mz59gfnAcRwK/0HnG6c8EZCJH8jMStzqA0bUjzDiyN2ZgzFkTUA9Cr8jkq8grtVMsp40mjFnSg/FR+O+rG32D/rbfvNYFCR8wawOcYrGyA==</samlsig:X509Certificate>
+	            </samlsig:X509Data>
+	        </samlsig:KeyInfo>
+	    </samlsig:Signature>
+	    <saml:NameID Format="">nameid</saml:NameID>
+	    <samlp:SessionIndex>sessionindex</samlp:SessionIndex>
+	</LogoutRequest>
+	`
+	assert.Equal(t, SquashWhitespace(expected), SquashWhitespace(result))
+}
+
+func TestCreateLogoutResponse(t *testing.T) {
+	response := saml.NewLogoutResponse()
+	response.ID = "id"
+	response.IssueInstant = "statictime"
+	response.Signature.SignedInfo.SamlsigReference.URI = "#id"
+	response.Assertion.ID = "id"
+	response.Assertion.IssueInstant = "statictime"
+	response.Assertion.Subject.SubjectConfirmation.SubjectConfirmationData.NotOnOrAfter = "statictime"
+	response.Assertion.Conditions.NotBefore = "statictime"
+	response.Assertion.Conditions.NotOnOrAfter = "statictime"
+	xmldoc, err := response.String()
+	assert.NoError(t, err)
+
+	expected := `
+	<samlp:LogoutResponse xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:samlsig="http://www.w3.org/2000/09/xmldsig#" ID="id" Version="2.0" Destination="" IssueInstant="statictime" InResponseTo="">
+	    <saml:Issuer></saml:Issuer>
+	    <samlsig:Signature Id="Signature1">
+	        <samlsig:SignedInfo>
+	            <samlsig:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"></samlsig:CanonicalizationMethod>
+	            <samlsig:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"></samlsig:SignatureMethod>
+	            <samlsig:Reference URI="#id">
+	                <samlsig:Transforms>
+	                    <samlsig:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"></samlsig:Transform>
+	                </samlsig:Transforms>
+	                <samlsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></samlsig:DigestMethod>
+	                <samlsig:DigestValue></samlsig:DigestValue>
+	            </samlsig:Reference>
+	        </samlsig:SignedInfo>
+	        <samlsig:SignatureValue></samlsig:SignatureValue>
+	        <samlsig:KeyInfo>
+	            <samlsig:X509Data>
+	                <samlsig:X509Certificate></samlsig:X509Certificate>
+	            </samlsig:X509Data>
+	        </samlsig:KeyInfo>
+	    </samlsig:Signature>
+	    <saml:Assertion ID="id" Version="2.0" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" saml="urn:oasis:names:tc:SAML:2.0:assertion" IssueInstant="statictime">
+	        <saml:Issuer></saml:Issuer>
+	        <Signature Id="">
+	            <SignedInfo>
+	                <CanonicalizationMethod Algorithm=""></CanonicalizationMethod>
+	                <SignatureMethod Algorithm=""></SignatureMethod>
+	                <SamlsigReference URI="">
+	                    <Transforms>
+	                        <Transform Algorithm=""></Transform>
+	                    </Transforms>
+	                    <DigestMethod Algorithm=""></DigestMethod>
+	                    <DigestValue></DigestValue>
+	                </SamlsigReference>
+	            </SignedInfo>
+	            <SignatureValue></SignatureValue>
+	            <KeyInfo>
+	                <X509Data>
+	                    <X509Certificate></X509Certificate>
+	                </X509Data>
+	            </KeyInfo>
+	        </Signature>
+	        <saml:Subject>
+	            <saml:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified"></saml:NameID>
+	            <saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
+	                <SubjectConfirmationData InResponseTo="" NotOnOrAfter="statictime" Recipient=""></SubjectConfirmationData>
+	            </saml:SubjectConfirmation>
+	        </saml:Subject>
+	        <saml:Conditions NotBefore="statictime" NotOnOrAfter="statictime"></saml:Conditions>
+	        <saml:AttributeStatement></saml:AttributeStatement>
+	        <AuthnStatement AuthnInstant="">
+	            <AuthnContext Comparison="">
+	                <AuthnContextClassRef></AuthnContextClassRef>
+	            </AuthnContext>
+	        </AuthnStatement>
+	    </saml:Assertion>
+	    <samlp:Status>
+	        <samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"></samlp:StatusCode>
+	    </samlp:Status>
+	</samlp:LogoutResponse>
+	`
+	assert.Equal(t, SquashWhitespace(expected), SquashWhitespace(xmldoc))
 }

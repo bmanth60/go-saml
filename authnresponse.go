@@ -12,11 +12,11 @@ import (
 //Validate saml response
 func (r *Response) Validate(s *Settings) error {
 	if r.Version != "2.0" {
-		return errors.New("unsupported SAML Version")
+		return ErrUnsupportedVersion
 	}
 
 	if len(r.ID) == 0 {
-		return errors.New("missing ID attribute on SAML Response")
+		return ErrMissingID
 	}
 
 	if len(r.Assertion.ID) == 0 {
@@ -190,14 +190,19 @@ func (r *Response) GetAttributeValues(name string) []string {
 	return values
 }
 
-//String get string representation of authentication response object
+//String get string representation of response object
 func (r *Response) String() (string, error) {
 	return packager.String(r)
 }
 
-//SignedString get xml signed string representation of authentication response object
-func (r *Response) SignedString(privateKeyPath string) (string, error) {
-	return packager.SignedString(r, privateKeyPath)
+//SignedString get xml signed string representation of response object
+func (r *Response) SignedString(s *Settings) (string, error) {
+	xmldoc, err := r.String()
+	if err != nil {
+		return "", err
+	}
+
+	return packager.SignWithKey(xmldoc, s.SPPrivateKey())
 }
 
 //EncodedSignedString get base64 encoded and xml signed string representation of authentication response object

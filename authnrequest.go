@@ -16,7 +16,6 @@ package saml
 
 import (
 	"encoding/xml"
-	"errors"
 	"time"
 
 	"github.com/RobotsAndPencils/go-saml/packager"
@@ -26,11 +25,11 @@ import (
 //Validate authentication request
 func (r *AuthnRequest) Validate(publicCertPath string) error {
 	if r.Version != "2.0" {
-		return errors.New("unsupported SAML Version")
+		return ErrUnsupportedVersion
 	}
 
 	if len(r.ID) == 0 {
-		return errors.New("missing ID attribute on SAML Response")
+		return ErrMissingID
 	}
 
 	// TODO more validation
@@ -115,8 +114,17 @@ func (r *AuthnRequest) String() (string, error) {
 }
 
 //SignedString get xml signed string representation of authentication request
-func (r *AuthnRequest) SignedString(privateKeyPath string) (string, error) {
-	return packager.SignedString(r, privateKeyPath)
+func (r *AuthnRequest) SignedString(s *Settings) (string, error) {
+	if !s.SP.SignRequest {
+		return "", ErrInvalidSettings
+	}
+
+	xmldoc, err := r.String()
+	if err != nil {
+		return "", err
+	}
+
+	return packager.SignWithKey(xmldoc, s.SPPrivateKey())
 }
 
 //EncodedSignedString get base64 encoded and xml signed string representation of authentication request

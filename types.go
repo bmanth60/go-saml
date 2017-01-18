@@ -25,7 +25,7 @@ type AuthnRequest struct {
 //Issuer request issuer
 type Issuer struct {
 	XMLName xml.Name
-	SAML    string `xml:"xmlns:saml,attr"`
+	SAML    string `xml:"xmlns:saml,attr,omitempty"`
 	URL     string `xml:",innerxml"`
 }
 
@@ -39,7 +39,7 @@ type NameIDPolicy struct {
 //RequestedAuthnContext requested authentication context
 type RequestedAuthnContext struct {
 	XMLName              xml.Name
-	SAMLP                string               `xml:"xmlns:samlp,attr"`
+	SAMLP                string               `xml:"xmlns:samlp,attr,omitempty"`
 	Comparison           string               `xml:"Comparison,attr"`
 	AuthnContextClassRef AuthnContextClassRef `xml:"AuthnContextClassRef"`
 }
@@ -47,7 +47,7 @@ type RequestedAuthnContext struct {
 //AuthnContextClassRef authentication context to use for saml interaction
 type AuthnContextClassRef struct {
 	XMLName   xml.Name
-	SAML      string `xml:"xmlns:saml,attr"`
+	SAML      string `xml:"xmlns:saml,attr,omitempty"`
 	Transport string `xml:",innerxml"`
 }
 
@@ -118,6 +118,9 @@ type AssertionConsumerService struct {
 type Response struct {
 	*RootXML
 
+	//Although embedded struct, RootXML, has XMLName, it is not
+	//marshalled properly without this explicit addition
+	XMLName      xml.Name
 	InResponseTo string    `xml:"InResponseTo,attr"`
 	Assertion    Assertion `xml:"Assertion"`
 	Status       Status    `xml:"Status"`

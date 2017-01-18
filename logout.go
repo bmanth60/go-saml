@@ -8,7 +8,14 @@ import (
 	"github.com/RobotsAndPencils/go-saml/util"
 )
 
-//NewLogoutRequest generate new logout request entity
+//NewLogoutResponse create new logout response entity
+func NewLogoutResponse() *Response {
+	r := NewSignedResponse()
+	r.XMLName.Local = "samlp:LogoutResponse"
+	return r
+}
+
+//NewLogoutRequest create new logout request entity
 func NewLogoutRequest() *LogoutRequest {
 	id := util.ID()
 	return &LogoutRequest{
@@ -62,4 +69,23 @@ func ApplyLogoutRequest(settings *Settings, r *LogoutRequest, nameID string, ses
 	}
 
 	return r
+}
+
+//String get string representation of logout request
+func (r *LogoutRequest) String() (string, error) {
+	return packager.String(r)
+}
+
+//SignedString get xml signed string representation of logout request
+func (r *LogoutRequest) SignedString(s *Settings) (string, error) {
+	if !s.SP.SignRequest {
+		return "", ErrInvalidSettings
+	}
+
+	xmldoc, err := r.String()
+	if err != nil {
+		return "", err
+	}
+
+	return packager.SignWithKey(xmldoc, s.SPPrivateKey())
 }

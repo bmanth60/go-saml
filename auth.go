@@ -30,6 +30,12 @@ import (
 	"encoding/xml"
 )
 
+//Document interface for saml document methods
+type Document interface {
+	String() (string, error)
+	SignedString(s *Settings) (string, error)
+}
+
 //GetAuthnRequestURL as SP, generate authentication request url to perform sso
 func GetAuthnRequestURL(s Settings, state string) (string, error) {
 	r := ApplyAuthnRequest(s, NewAuthnRequest())
