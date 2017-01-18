@@ -57,8 +57,8 @@ func (r *Response) Validate(s *Settings) error {
 	return nil
 }
 
-//NewSignedResponse get new signed response object
-func NewSignedResponse() *Response {
+//NewAuthnResponse get new signed response object
+func NewAuthnResponse() *Response {
 	id := util.ID()
 	return &Response{
 		RootXML: &RootXML{

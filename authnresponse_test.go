@@ -8,7 +8,8 @@ import (
 )
 
 func TestCreateAuthnResponse(t *testing.T) {
-	response := saml.NewSignedResponse()
+	settings := GetStandardSettings()
+	response := saml.NewAuthnResponse()
 	response.ID = "id"
 	response.IssueInstant = "statictime"
 	response.Signature.SignedInfo.SamlsigReference.URI = "#id"
@@ -18,68 +19,68 @@ func TestCreateAuthnResponse(t *testing.T) {
 	response.Assertion.Conditions.NotBefore = "statictime"
 	response.Assertion.Conditions.NotOnOrAfter = "statictime"
 
-	xmldoc, err := response.String()
+	xmldoc, err := response.SignedString(&settings)
 	assert.NoError(t, err)
 
 	expected := `
 	<Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:samlsig="http://www.w3.org/2000/09/xmldsig#" ID="id" Version="2.0" Destination="" IssueInstant="statictime" InResponseTo="">
-	    <saml:Issuer></saml:Issuer>
+	    <saml:Issuer/>
 	    <samlsig:Signature Id="Signature1">
-	        <samlsig:SignedInfo>
-	            <samlsig:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"></samlsig:CanonicalizationMethod>
-	            <samlsig:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"></samlsig:SignatureMethod>
+	        <samlsig:SignedInfo xmlns:samlsig="http://www.w3.org/2000/09/xmldsig#">
+	            <samlsig:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+	            <samlsig:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
 	            <samlsig:Reference URI="#id">
 	                <samlsig:Transforms>
-	                    <samlsig:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"></samlsig:Transform>
+	                    <samlsig:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
 	                </samlsig:Transforms>
-	                <samlsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></samlsig:DigestMethod>
-	                <samlsig:DigestValue></samlsig:DigestValue>
+	                <samlsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+	                <samlsig:DigestValue>sIJnDojC5lMetWScbWoXONSIeJ4=</samlsig:DigestValue>
 	            </samlsig:Reference>
 	        </samlsig:SignedInfo>
-	        <samlsig:SignatureValue></samlsig:SignatureValue>
+	        <samlsig:SignatureValue>uqpKC2+1kgsNMYnKtTtntilK6DlQV6rvERnOPevk2PpNl45vVIwGexibIX1uwn44IdWi0sW4opHoFvWwgBv5EPp0NjBhqg0D3ReNbxvDeECoev2PLXLFkxEHESMI/83rBFtu5tZ3qG6HNW3fK2y+LoZvYJjdrR0GXXeq3IrqQqOycmTZZ639qbjtask2DniY1vNMueliqd3gt3jkCGjtQjDK2lOFrE4qN/JuO7rDGUczV5sTbL3A0uIOSsFLUseHgDgG+nd8zFwmLW8SdJzV6wAPtiOfDp6xY82lbWoZjJ8TZ7tYwtmIKw08LnkQsCv2nWuItH4arBo0SXUbZVVLll8sE6xYwinCbJ/F7RQCxnVzQDq0faDkFJBeuIWzDf4ka9fCOUUUVsyB+FFUkChVpHagO8xYOt7mBzkHaGFoxEChF30e4V36pgM6DQlXUuxhvm2TVYHsIoBoDMnJiB2uXwyJ9BQIUG01ZfwfjaTSmox1aSp3U0HtdIsPEJmadaY+SfiqyQX0jHrJa6B5DCQMRrd9ovht2aaiVLw4PF6hIsI7ZfpTH6F/8dL3Skbphe1RhljcEYPl2nkRNHTB6d3zaOby+2/0hbhqYwXe8N6Yc9mx3nOWDH0VFP5Iw1INugJtXgkVEOXxdwICc4oMOJ4/TcEYXxKxhl1K5OPSOwoGyEI=</samlsig:SignatureValue>
 	        <samlsig:KeyInfo>
 	            <samlsig:X509Data>
-	                <samlsig:X509Certificate></samlsig:X509Certificate>
+	                <samlsig:X509Certificate/>
 	            </samlsig:X509Data>
 	        </samlsig:KeyInfo>
 	    </samlsig:Signature>
 	    <saml:Assertion ID="id" Version="2.0" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" saml="urn:oasis:names:tc:SAML:2.0:assertion" IssueInstant="statictime">
-	        <saml:Issuer></saml:Issuer>
+	        <saml:Issuer/>
 	        <Signature Id="">
 	            <SignedInfo>
-	                <CanonicalizationMethod Algorithm=""></CanonicalizationMethod>
-	                <SignatureMethod Algorithm=""></SignatureMethod>
+	                <CanonicalizationMethod Algorithm=""/>
+	                <SignatureMethod Algorithm=""/>
 	                <SamlsigReference URI="">
 	                    <Transforms>
-	                        <Transform Algorithm=""></Transform>
+	                        <Transform Algorithm=""/>
 	                    </Transforms>
-	                    <DigestMethod Algorithm=""></DigestMethod>
-	                    <DigestValue></DigestValue>
+	                    <DigestMethod Algorithm=""/>
+	                    <DigestValue/>
 	                </SamlsigReference>
 	            </SignedInfo>
-	            <SignatureValue></SignatureValue>
+	            <SignatureValue/>
 	            <KeyInfo>
 	                <X509Data>
-	                    <X509Certificate></X509Certificate>
+	                    <X509Certificate/>
 	                </X509Data>
 	            </KeyInfo>
 	        </Signature>
 	        <saml:Subject>
-	            <saml:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified"></saml:NameID>
+	            <saml:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified"/>
 	            <saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
-	                <SubjectConfirmationData InResponseTo="" NotOnOrAfter="statictime" Recipient=""></SubjectConfirmationData>
+	                <SubjectConfirmationData InResponseTo="" NotOnOrAfter="statictime" Recipient=""/>
 	            </saml:SubjectConfirmation>
 	        </saml:Subject>
-	        <saml:Conditions NotBefore="statictime" NotOnOrAfter="statictime"></saml:Conditions>
-	        <saml:AttributeStatement></saml:AttributeStatement>
+	        <saml:Conditions NotBefore="statictime" NotOnOrAfter="statictime"/>
+	        <saml:AttributeStatement/>
 	        <AuthnStatement AuthnInstant="">
 	            <AuthnContext Comparison="">
-	                <AuthnContextClassRef></AuthnContextClassRef>
+	                <AuthnContextClassRef/>
 	            </AuthnContext>
 	        </AuthnStatement>
 	    </saml:Assertion>
 	    <samlp:Status>
-	        <samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"></samlp:StatusCode>
+	        <samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/>
 	    </samlp:Status>
 	</Response>
 	`

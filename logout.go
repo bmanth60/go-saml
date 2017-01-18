@@ -10,7 +10,7 @@ import (
 
 //NewLogoutResponse create new logout response entity
 func NewLogoutResponse() *Response {
-	r := NewSignedResponse()
+	r := NewAuthnResponse()
 	r.XMLName.Local = "samlp:LogoutResponse"
 	return r
 }

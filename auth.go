@@ -96,7 +96,7 @@ func ParseAuthnResponse(s Settings, b64ResponseXML string) (*Response, error) {
 		return nil, err
 	}
 
-	response := new(Response)
+	response := NewAuthnResponse()
 	err = xml.Unmarshal(bytesXML, response)
 	if err != nil {
 		return nil, err
@@ -168,7 +168,7 @@ func ParseLogoutResponse(s Settings, b64ResponseXML string) (*Response, error) {
 		return nil, err
 	}
 
-	response := new(Response)
+	response := NewLogoutResponse()
 	err = xml.Unmarshal(bytesXML, response)
 	if err != nil {
 		return nil, err
