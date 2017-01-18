@@ -3,7 +3,7 @@ package packager_test
 import (
 	"testing"
 
-	"github.com/RobotsAndPencils/go-saml/packager"
+	"github.com/bmanth60/go-saml/packager"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -37,10 +37,10 @@ func TestRequest(t *testing.T) {
 	</samlp:AuthnRequest>
 	`
 
-	signedXML, err := packager.Sign(requestXML, "/go/src/github.com/RobotsAndPencils/go-saml/certs/default.key")
+	signedXML, err := packager.Sign(requestXML, "/go/src/github.com/bmanth60/go-saml/certs/default.key")
 	assert.NoError(t, err)
 	assert.NotEmpty(t, signedXML)
 
-	err = packager.Verify(signedXML, "/go/src/github.com/RobotsAndPencils/go-saml/certs/default.crt")
+	err = packager.Verify(signedXML, "/go/src/github.com/bmanth60/go-saml/certs/default.crt")
 	assert.NoError(t, err)
 }

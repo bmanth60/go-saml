@@ -3,7 +3,7 @@ package saml
 import (
 	"io/ioutil"
 
-	"github.com/RobotsAndPencils/go-saml/util"
+	"github.com/bmanth60/go-saml/util"
 )
 
 //Settings to configure saml properties for

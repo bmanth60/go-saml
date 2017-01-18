@@ -7,7 +7,7 @@ package saml
 import (
 	"encoding/xml"
 
-	"github.com/RobotsAndPencils/go-saml/packager"
+	"github.com/bmanth60/go-saml/packager"
 )
 
 //AuthnRequest saml authentication request

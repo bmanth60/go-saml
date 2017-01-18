@@ -4,7 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/xml"
 
-	"github.com/RobotsAndPencils/go-saml/util"
+	"github.com/bmanth60/go-saml/util"
 )
 
 //String get string representation of xml document
