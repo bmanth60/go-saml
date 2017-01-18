@@ -137,6 +137,24 @@ func NewAuthnResponse() *Response {
 				NotBefore:    time.Now().Add(time.Minute * -5).UTC().Format(time.RFC3339Nano),
 				NotOnOrAfter: time.Now().Add(time.Minute * 5).UTC().Format(time.RFC3339Nano),
 			},
+			AuthnStatement: AuthnStatement{
+				XMLName: xml.Name{
+					Local: "saml:AuthnStatement",
+				},
+				AuthnInstant: "",
+				SessionIndex: "",
+				AuthnContext: RequestedAuthnContext{
+					XMLName: xml.Name{
+						Local: "saml:AuthnContext",
+					},
+					AuthnContextClassRef: AuthnContextClassRef{
+						XMLName: xml.Name{
+							Local: "saml:AuthnContextClassRef",
+						},
+						Transport: "",
+					},
+				},
+			},
 			AttributeStatement: AttributeStatement{
 				XMLName: xml.Name{
 					Local: "saml:AttributeStatement",

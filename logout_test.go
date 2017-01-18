@@ -73,10 +73,10 @@ func TestCreateLogoutResponse(t *testing.T) {
 	                    <samlsig:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
 	                </samlsig:Transforms>
 	                <samlsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
-	                <samlsig:DigestValue>hA9iGOrq5Ex2FFp2DR/sGDt9YBE=</samlsig:DigestValue>
+	                <samlsig:DigestValue>pAh0rZ03A+eIpLnpDZ5cCR6iHaM=</samlsig:DigestValue>
 	            </samlsig:Reference>
 	        </samlsig:SignedInfo>
-	        <samlsig:SignatureValue>bh3ePcp2q+4JcpkQijRGYn6XggqD2v8NXvkwddNJiTXzUxqyWm9xOWOlF2hlwGrbOi1kusc7aO464cSUqgWluTJGRy3pmfgdvKH4lTKdOvK7NY/3zmYiMXNm6SVL9KN19A9uMZiXlB8+5E43q8x6N+Dv9X7nNViiqsAgcclMBXaBlEFQNiUVtYI3w1egIlXqxjKHhgugnXkyqCTiT1p/Ij+yyAECPvJur0UkrGai13xMmauh0v3xF70mwylsFfKP237w2ZT6A+oK4Ew/11Xox2vkBUpbaJ9KVOeZT0cQwfI5MOOHzpbBzOOLjlGUUgj4Qg3ZwjHqDpdVSiNkPh2XJugOiDkiwYK/nAgrTE+h8pyT7ggg68pCeGqwznpVUC8NAtyO44fhrOEU8j1k/h/kCLw5R3nLUtKMZ275s+JZinO2KIEWjKtpSEfsHB49mMqQUrPtgR975mKSNA6JHzj7+uqk4aQ/22d2wceCGOPbsgewCnpD6KGbtLIj1xmtzm6vgkF9QT4FxJip54FBADPVSDHaQDeN06F5Bwili/lgpL4a3HRKz/l4p8frXCdfnWzwJP3gyzNvMyHsMH9ZSRjHeRO9SCoIW2aoJ3IQhM3LiD3X9w7h8gU8k8bnHyg8W0Jf1EKKxNugvFmkdnUBoIZbWMlb1dU8+WUS5H+GF00/EJU=</samlsig:SignatureValue>
+	        <samlsig:SignatureValue>Iff10xa2FYGDY65C3KLHoL2eAD2/ZsioCDCT2UQNQ2XdULyLFA0ERbbpaac/GuHK/KRzHvuhZIZIr5Oj90ZUCoQsCnAgTGxhGrFcetqBkQbn9ROqGzXJ6Iuc+4kYASiU01ciEkKBYHxsVMbN7hCD84wuTdWGhd/dJVb7tKR0Dode6AxL6lMgtR5HUUdSNA7/VRss682mGjFWrBWMD0MJJBJheHHA4ZKBIN4AVmTqh/UBNyFlmhbCPRpSvhYOq8NIyljrTHSyFZpbohgfeBjPOLkgN8Nhe8IEVYK9Mw6WDjA7szFWRSZfeQuXS4KlvdsoU6xk058aXkMxSHauVj3q5Kg9FUA9VjBn7w9GI494GiS9M52OxrVcc/ZOnRYBRvLi57DAp04R0CAhUmqHRBKkCjbq80A61CtBabgOBel2g16uija11jR96NI7utI7g9qCz/booX/Nn9CTSj/AIVOS8oiwcIuIwe1VnbTwzgvAnYBHiwdsrin/wpU/P96y1h7M4mU05ugZH5M0iwx25G3dJZqIBolXkBsFsx8f7q/4Hb7FH377ybRljpkLYFqh4WJqHV4whxFmCdJm6m1iI7bddT6Y3C7VXlm4UlXY6ddauQAor2pEwEf6skjM04TRv5xFY8tOg5zBp5y1wX6T+Fih4VTNn0A0EKGVWFcIXcNpmhU=</samlsig:SignatureValue>
 	        <samlsig:KeyInfo>
 	            <samlsig:X509Data>
 	                <samlsig:X509Certificate/>
@@ -112,11 +112,11 @@ func TestCreateLogoutResponse(t *testing.T) {
 	        </saml:Subject>
 	        <saml:Conditions NotBefore="statictime" NotOnOrAfter="statictime"/>
 	        <saml:AttributeStatement/>
-	        <AuthnStatement AuthnInstant="">
-	            <AuthnContext Comparison="">
-	                <AuthnContextClassRef/>
-	            </AuthnContext>
-	        </AuthnStatement>
+	        <saml:AuthnStatement AuthnInstant="">
+	            <saml:AuthnContext Comparison="">
+	                <saml:AuthnContextClassRef/>
+	            </saml:AuthnContext>
+	        </saml:AuthnStatement>
 	    </saml:Assertion>
 	    <samlp:Status>
 	        <samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/>
