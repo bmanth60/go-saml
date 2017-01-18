@@ -1,6 +1,10 @@
 package saml
 
-import "github.com/RobotsAndPencils/go-saml/util"
+import (
+	"io/ioutil"
+
+	"github.com/RobotsAndPencils/go-saml/util"
+)
 
 //Settings to configure saml properties for
 //one idp and/or one sp.
@@ -92,12 +96,16 @@ func (s *Settings) loadSPCertificate() {
 	}
 
 	if s.SP.PrivateKeyString != "" {
-		s.SP.privateKey = util.LoadCertificateFromString(s.SP.PrivateKeyString)
+		s.SP.privateKey = s.SP.PrivateKeyString
 	} else {
-		s.SP.privateKey, err = util.LoadCertificate(s.SP.PrivateKeyPath)
+		//Cannot use util.LoadCertificate here since it
+		//breaks the pem format
+		keyBytes, err := ioutil.ReadFile(s.SP.PrivateKeyPath)
 		if err != nil {
 			panic(err)
 		}
+
+		s.SP.privateKey = string(keyBytes)
 	}
 }
 

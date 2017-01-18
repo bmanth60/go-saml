@@ -28,5 +28,6 @@ func NormalizeCertificate(cert string) string {
 	cert = re.ReplaceAllString(cert, "")
 	cert = strings.Trim(cert, " \n")
 	cert = strings.Replace(cert, "\n", "", -1)
+	cert = strings.Replace(cert, "\r", "", -1)
 	return cert
 }

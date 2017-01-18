@@ -43,10 +43,9 @@ func (r *AuthnRequest) Validate(publicCertPath string) error {
 	return nil
 }
 
-//GetAuthnRequest returns an authentication request object based on SAML Settings
+//ApplyAuthnRequest returns an authentication request object based on SAML Settings
 //passed in
-func GetAuthnRequest(s Settings) *AuthnRequest {
-	r := NewAuthnRequest()
+func ApplyAuthnRequest(s Settings, r *AuthnRequest) *AuthnRequest {
 	r.AssertionConsumerServiceURL = s.SP.AssertionConsumerServiceURL
 	r.Destination = s.IDP.SingleSignOnURL
 	r.Issuer.URL = s.IDP.SingleSignOnDescriptorURL
