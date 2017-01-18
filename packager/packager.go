@@ -33,7 +33,8 @@ func EncodedSignedString(data interface{}, privateKeyPath string) (string, error
 	if err != nil {
 		return "", err
 	}
-	b64XML := base64.StdEncoding.EncodeToString([]byte(signed))
+
+	b64XML := EncodeString([]byte(signed))
 	return b64XML, nil
 }
 
@@ -49,8 +50,7 @@ func CompressedEncodedSignedStringFromKey(data interface{}, key string) (string,
 		return "", err
 	}
 
-	compressed := util.Compress([]byte(signed))
-	b64XML := base64.StdEncoding.EncodeToString(compressed)
+	b64XML := DeflateAndEncodeString([]byte(signed))
 	return b64XML, nil
 }
 
@@ -60,8 +60,8 @@ func CompressedEncodedSignedString(data interface{}, privateKeyPath string) (str
 	if err != nil {
 		return "", err
 	}
-	compressed := util.Compress([]byte(signed))
-	b64XML := base64.StdEncoding.EncodeToString(compressed)
+
+	b64XML := DeflateAndEncodeString([]byte(signed))
 	return b64XML, nil
 }
 
@@ -71,7 +71,8 @@ func EncodedString(data interface{}) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	b64XML := base64.StdEncoding.EncodeToString([]byte(saml))
+
+	b64XML := EncodeString([]byte(saml))
 	return b64XML, nil
 }
 
@@ -81,9 +82,20 @@ func CompressedEncodedString(data interface{}) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	compressed := util.Compress([]byte(saml))
-	b64XML := base64.StdEncoding.EncodeToString(compressed)
+
+	b64XML := DeflateAndEncodeString([]byte(saml))
 	return b64XML, nil
+}
+
+//EncodeString base64 encode string
+func EncodeString(data []byte) string {
+	return base64.StdEncoding.EncodeToString(data)
+}
+
+//DeflateAndEncodeString deflate string then base 64 encode
+func DeflateAndEncodeString(data []byte) string {
+	compressed := util.Compress(data)
+	return EncodeString(compressed)
 }
 
 //DecodeAndInflateString base64 decode and inflate string
