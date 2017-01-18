@@ -4,7 +4,7 @@ import (
 	"encoding/xml"
 	"fmt"
 
-	"github.com/RobotsAndPencils/go-saml/packager"
+	"github.com/bmanth60/go-saml/packager"
 )
 
 //GetEntityDescriptor get saml entity metadata XML as specified by

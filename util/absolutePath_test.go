@@ -4,13 +4,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/RobotsAndPencils/go-saml/util"
+	"github.com/bmanth60/go-saml/util"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestAbsoluteFilePath(t *testing.T) {
-	path := util.AbsolutePath("/go/src/github.com/RobotsAndPencils/go-saml/certs/default.crt")
-	assert.Equal(t, "/go/src/github.com/RobotsAndPencils/go-saml/certs/default.crt", path)
+	path := util.AbsolutePath("/go/src/github.com/bmanth60/go-saml/certs/default.crt")
+	assert.Equal(t, "/go/src/github.com/bmanth60/go-saml/certs/default.crt", path)
 }
 
 func TestRelativeFilePath(t *testing.T) {
@@ -20,8 +20,8 @@ func TestRelativeFilePath(t *testing.T) {
 }
 
 func TestAbsoluteDirectory(t *testing.T) {
-	path := util.AbsolutePath("/go/src/github.com/RobotsAndPencils/go-saml/certs")
-	assert.Equal(t, "/go/src/github.com/RobotsAndPencils/go-saml/certs", path)
+	path := util.AbsolutePath("/go/src/github.com/bmanth60/go-saml/certs")
+	assert.Equal(t, "/go/src/github.com/bmanth60/go-saml/certs", path)
 }
 
 func TestRelativeDirectory(t *testing.T) {

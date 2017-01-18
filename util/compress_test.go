@@ -3,7 +3,7 @@ package util_test
 import (
 	"testing"
 
-	"github.com/RobotsAndPencils/go-saml/util"
+	"github.com/bmanth60/go-saml/util"
 	"github.com/stretchr/testify/assert"
 )
 

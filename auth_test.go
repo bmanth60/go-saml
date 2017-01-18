@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/RobotsAndPencils/go-saml"
+	"github.com/bmanth60/go-saml"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,8 +20,8 @@ func SquashWhitespace(data string) string {
 func GetStandardSettings() saml.Settings {
 	return saml.Settings{
 		SP: saml.ServiceProviderSettings{
-			PublicCertPath:              "/go/src/github.com/RobotsAndPencils/go-saml/certs/default.crt",
-			PrivateKeyPath:              "/go/src/github.com/RobotsAndPencils/go-saml/certs/default.key",
+			PublicCertPath:              "/go/src/github.com/bmanth60/go-saml/certs/default.crt",
+			PrivateKeyPath:              "/go/src/github.com/bmanth60/go-saml/certs/default.key",
 			SingleLogoutServiceURL:      "http://localhost:8000/auth/saml/sls",
 			AssertionConsumerServiceURL: "http://localhost:8000/auth/saml/acs",
 			SignRequest:                 true,
@@ -30,7 +30,7 @@ func GetStandardSettings() saml.Settings {
 			SingleLogoutURL:           "http://www.onelogin.net",
 			SingleSignOnURL:           "http://www.onelogin.net",
 			SingleSignOnDescriptorURL: "http://www.onelogin.net",
-			PublicCertPath:            "/go/src/github.com/RobotsAndPencils/go-saml/certs/default.crt",
+			PublicCertPath:            "/go/src/github.com/bmanth60/go-saml/certs/default.crt",
 		},
 		Compress: saml.CompressionSettings{
 			Request:  true,

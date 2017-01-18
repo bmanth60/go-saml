@@ -18,8 +18,8 @@ import (
 	"encoding/xml"
 	"time"
 
-	"github.com/RobotsAndPencils/go-saml/packager"
-	"github.com/RobotsAndPencils/go-saml/util"
+	"github.com/bmanth60/go-saml/packager"
+	"github.com/bmanth60/go-saml/util"
 )
 
 //Validate authentication request

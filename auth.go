@@ -23,7 +23,7 @@ import (
 	"crypto/x509"
 	"net/url"
 
-	"github.com/RobotsAndPencils/go-saml/packager"
+	"github.com/bmanth60/go-saml/packager"
 
 	"encoding/base64"
 	"encoding/pem"

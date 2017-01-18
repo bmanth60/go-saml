@@ -3,5 +3,5 @@ services:
   go-saml:
     image: filtered/go-dev:latest
     volumes:
-      - .:/go/src/github.com/RobotsAndPencils/go-saml
-    working_dir: /go/src/github.com/RobotsAndPencils/go-saml
+      - .:/go/src/github.com/bmanth60/go-saml
+    working_dir: /go/src/github.com/bmanth60/go-saml
