@@ -78,11 +78,11 @@ func (s *Settings) GetEntityDescriptor() (string, error) {
 	d.SPSSODescriptor.SigningKeyDescriptor.KeyInfo.X509Data.X509Certificate.Cert = s.SPPublicCert()
 	d.SPSSODescriptor.EncryptionKeyDescriptor.KeyInfo.X509Data.X509Certificate.Cert = s.SPPublicCert()
 
-	b, err := xml.MarshalIndent(d, "", "    ")
+	metaxml, err := packager.String(d)
 	if err != nil {
 		return "", err
 	}
 
-	newMetadata := fmt.Sprintf("<?xml version='1.0' encoding='UTF-8'?>\n%s", b)
-	return string(newMetadata), nil
+	metadata := fmt.Sprintf("<?xml version='1.0' encoding='UTF-8'?>\n%s", metaxml)
+	return metadata, nil
 }
