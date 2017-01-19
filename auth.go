@@ -93,7 +93,7 @@ func ParseAuthnResponse(s Settings, b64ResponseXML string) (*Response, error) {
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, ErrCannotDecode
 	}
 
 	response := NewAuthnResponse()

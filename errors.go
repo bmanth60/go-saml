@@ -11,4 +11,6 @@ var (
 	ErrMissingID = errors.New("Missing ID attribute on SAML Response")
 	//ErrUnsupportedVersion saml version not supported
 	ErrUnsupportedVersion = errors.New("Unsupported SAML Version")
+	//ErrCannotDecode saml document
+	ErrCannotDecode = errors.New("Unable to decode and/or decompress message")
 )
