@@ -19,10 +19,10 @@ func NewLogoutResponse() *Response {
 func NewLogoutRequest() *LogoutRequest {
 	id := util.ID()
 	return &LogoutRequest{
+		XMLName: xml.Name{
+			Local: "samlp:LogoutRequest",
+		},
 		RootXML: &RootXML{
-			XMLName: xml.Name{
-				Local: "samlp:LogoutRequest",
-			},
 			SAMLP:   "urn:oasis:names:tc:SAML:2.0:protocol",
 			SAML:    "urn:oasis:names:tc:SAML:2.0:assertion",
 			SAMLSIG: "http://www.w3.org/2000/09/xmldsig#",

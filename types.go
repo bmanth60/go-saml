@@ -14,6 +14,7 @@ import (
 type AuthnRequest struct {
 	*RootXML
 
+	XMLName                        xml.Name
 	ProtocolBinding                string                 `xml:"ProtocolBinding,attr"`
 	AssertionConsumerServiceURL    string                 `xml:"AssertionConsumerServiceURL,attr"`
 	AssertionConsumerServiceIndex  int                    `xml:"AssertionConsumerServiceIndex,attr"`
@@ -118,8 +119,6 @@ type AssertionConsumerService struct {
 type Response struct {
 	*RootXML
 
-	//Although embedded struct, RootXML, has XMLName, it is not
-	//marshalled properly without this explicit addition
 	XMLName      xml.Name
 	InResponseTo string    `xml:"InResponseTo,attr"`
 	Assertion    Assertion `xml:"Assertion"`
@@ -222,8 +221,9 @@ type AuthnStatement struct {
 }
 
 //RootXML saml root xml data
+//Although all root xml elements have XMLName, it is not
+//marshalled properly without explicit addition to the type
 type RootXML struct {
-	XMLName        xml.Name
 	SAMLP          string              `xml:"xmlns:samlp,attr"`
 	SAML           string              `xml:"xmlns:saml,attr"`
 	SAMLSIG        string              `xml:"xmlns:samlsig,attr,omitempty"`
@@ -240,6 +240,7 @@ type RootXML struct {
 type LogoutRequest struct {
 	*RootXML
 
+	XMLName      xml.Name
 	NameID       NameID       `xml:"NameID"`
 	SessionIndex SessionIndex `xml:",omitempty"`
 }
