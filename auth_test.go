@@ -20,6 +20,7 @@ func SquashWhitespace(data string) string {
 func GetStandardSettings() saml.Settings {
 	return saml.Settings{
 		SP: saml.ServiceProviderSettings{
+			EntityID:                    "http://localhost:8000/auth/saml/metadata",
 			PublicCertPath:              "/go/src/github.com/bmanth60/go-saml/certs/default.crt",
 			PrivateKeyPath:              "/go/src/github.com/bmanth60/go-saml/certs/default.key",
 			SingleLogoutServiceURL:      "http://localhost:8000/auth/saml/sls",

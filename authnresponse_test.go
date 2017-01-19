@@ -23,7 +23,7 @@ func TestCreateAuthnResponse(t *testing.T) {
 	assert.NoError(t, err)
 
 	expected := `
-	<Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:samlsig="http://www.w3.org/2000/09/xmldsig#" ID="id" Version="2.0" Destination="" IssueInstant="statictime" InResponseTo="">
+	<samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:samlsig="http://www.w3.org/2000/09/xmldsig#" ID="id" Version="2.0" Destination="" IssueInstant="statictime" InResponseTo="">
 	    <saml:Issuer/>
 	    <samlsig:Signature Id="Signature1">
 	        <samlsig:SignedInfo xmlns:samlsig="http://www.w3.org/2000/09/xmldsig#">
@@ -34,10 +34,10 @@ func TestCreateAuthnResponse(t *testing.T) {
 	                    <samlsig:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
 	                </samlsig:Transforms>
 	                <samlsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
-	                <samlsig:DigestValue>FUpE3zP4PQ0oCh02L7gcwjiKdlw=</samlsig:DigestValue>
+	                <samlsig:DigestValue>uzLwpwqinaGv4P2LQByn4aXlgds=</samlsig:DigestValue>
 	            </samlsig:Reference>
 	        </samlsig:SignedInfo>
-	        <samlsig:SignatureValue>oiUMviOCG1Qo7wWd+P5PiamjuR8JjFO1gIwd92TO9estGnOh99yWw2o6PY6PfH4C8ZD6oXhjAWClGdxe6Uk/VGOEN06sRYcbIpA1yjSX1R23Up/pMsgmyjPrFeKlpOI1uMDKB5Q3hBLM1H1gez5/FJ6tZ4M/e1YNuLX+DVDDDqDT2IF5ut3OzXLJAXn9Vf9hIIeLqRoXdzSPF4WI4NgvDEcvSwHq7HdlnLYrTpGjVgPgz8SabZPNmr2yaEqASQWmIkiZVevppPPn3Fj4CA7BhysBF9JRTPsiA2xaDUDK7OG8R3Jfc91WfS/wBQ/eoDoolJZUzDuDb9fZWiNvHESarRKhKTQ+leaelm/DHnj+zrgUi3Z0B9jPwWAFOLdBJetkEFgtyqRlT4EBmse4cQ1R/DOGI9B1IzPSed+XM7+sPILaQ/W5ywO01l3fkjum4055rBvnx8jvwv++cZ4cK/r3ECM5Yn03rWwldIkK6eiyOgcnRpy8Sgf2RUOjN1/p6wxSK7QOYtQyheQDOn9EAzCTxUh0KMxpxKOUO4ObyQpIvJwGqQzIOHr3Mm05RiG3QUSC/VeFrmqXzjyWPG4nic1v0p0GUPE2p3jWECwZu49SwryW0+f/lq94+8FbeDjRrwG4olctjjV/P4Fd2JOZzWK30vrGFsqfEjcOhe1Y/ZfZmqQ=</samlsig:SignatureValue>
+	        <samlsig:SignatureValue>y4Zwk1esRbhFYOLICZanZ1W8eiq79gXDtHMqByEiOG7oHlgL0CREh0ynl0AlGOdx16nbeZ6dfAY58ZAPvhT4BMfQgtXT81Im0Of/kFv0EoAoo8q4xaK8XxahoX4f+jxyYlNH070N2nsDWBJIScIU2Iqu+kUd3+FZYPqIWXtq4MpxrMv8MP54PUAYp/IFVGkbogHQCWTCL1UikLE7bAtE7RXFTDINy/tNYgaILT1YLVY8CrnryF5xw/xN+WDdWv5rcO2p2VqGbAUiXcMT7XRTmu6dZCjzLdgy63xd+0s3oqyKYJkx52ZbYJJ9vMt01VDzIAWNofIxsYv7MgyUnKLvaISSL+hVCVOcYR75keAQ7lXLAfgDR433qlu2tNCN4jz3Io0p72dYXbsD1GWAtPtzw8mc2ekDnd+tXQeHe/mztajJMZmwP7bcmJvmYwXfdmpmg+zGmb91Jy42UgIwpivsviHT1WFRgGJeesOHCS/zGYtP05rUiVXa6xe0RZPdxkJMC4WBybehL2u/SwUuTB69hNOcbprp6RxI3uIIVIAR5wmDX+suRq9Za5XiLs5FnnwNXugS6pGl3P5zVjCO3RFkCeH3N1Apy8oajXmni1oSMdMWzQEWYByi2tu9+QjRe8jFoJgcWjvt3Cn2Grar/N1d/WlA0Y1yYvQxiR6SpjlWv2Y=</samlsig:SignatureValue>
 	        <samlsig:KeyInfo>
 	            <samlsig:X509Data>
 	                <samlsig:X509Certificate/>
@@ -82,7 +82,7 @@ func TestCreateAuthnResponse(t *testing.T) {
 	    <samlp:Status>
 	        <samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/>
 	    </samlp:Status>
-	</Response>
+	</samlp:Response>
 	`
 	assert.Equal(t, SquashWhitespace(expected), SquashWhitespace(xmldoc))
 }

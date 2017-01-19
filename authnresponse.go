@@ -61,10 +61,10 @@ func (r *Response) Validate(s *Settings) error {
 func NewAuthnResponse() *Response {
 	id := util.ID()
 	return &Response{
+		XMLName: xml.Name{
+			Local: "samlp:Response",
+		},
 		RootXML: &RootXML{
-			XMLName: xml.Name{
-				Local: "samlp:Response",
-			},
 			SAMLP:        "urn:oasis:names:tc:SAML:2.0:protocol",
 			SAML:         "urn:oasis:names:tc:SAML:2.0:assertion",
 			SAMLSIG:      "http://www.w3.org/2000/09/xmldsig#",

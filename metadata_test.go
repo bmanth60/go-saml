@@ -13,7 +13,7 @@ func TestGetEntityDescriptor(t *testing.T) {
 
 	expected := `
 	<?xml version='1.0' encoding='UTF-8'?>
-	<md:EntityDescriptor xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" entityID="">
+	<md:EntityDescriptor xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" entityID="http://localhost:8000/auth/saml/metadata">
 	    <md:Extensions xmlns:alg="urn:oasis:names:tc:SAML:metadata:algsupport" xmlns:mdattr="urn:oasis:names:tc:SAML:metadata:attribute" xmlns:mdrpi="urn:oasis:names:tc:SAML:metadata:rpi">
 	        <EntityAttributes></EntityAttributes>
 	    </md:Extensions>

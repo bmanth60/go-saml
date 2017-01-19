@@ -60,9 +60,7 @@ coverx:
 
 # Lint via docker
 lintx:
-	$(foreach pkg,$(PKG_ML), \
-		${RUN} bash -c "go vet $(pkg) && golint $(pkg)"; \
-	)
+	${RUN} bash -c "for pkg in ${PKG}; do echo \$$pkg && go vet \$$pkg && golint \$$pkg; done"
 
 # Load dependencies via docker
 depx:

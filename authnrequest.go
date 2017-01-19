@@ -47,7 +47,7 @@ func (r *AuthnRequest) Validate(publicCertPath string) error {
 func ApplyAuthnRequest(s Settings, r *AuthnRequest) *AuthnRequest {
 	r.AssertionConsumerServiceURL = s.SP.AssertionConsumerServiceURL
 	r.Destination = s.IDP.SingleSignOnURL
-	r.Issuer.URL = s.IDP.SingleSignOnDescriptorURL
+	r.Issuer.URL = s.SP.EntityID
 	r.Signature.KeyInfo.X509Data.X509Certificate.Cert = s.SPPublicCert()
 	r.NameIDPolicy.Format = s.IDP.NameIDFormat
 
@@ -63,10 +63,10 @@ func ApplyAuthnRequest(s Settings, r *AuthnRequest) *AuthnRequest {
 func NewAuthnRequest() *AuthnRequest {
 	id := util.ID()
 	return &AuthnRequest{
+		XMLName: xml.Name{
+			Local: "samlp:AuthnRequest",
+		},
 		RootXML: &RootXML{
-			XMLName: xml.Name{
-				Local: "samlp:AuthnRequest",
-			},
 			SAMLP:   "urn:oasis:names:tc:SAML:2.0:protocol",
 			SAML:    "urn:oasis:names:tc:SAML:2.0:assertion",
 			SAMLSIG: "http://www.w3.org/2000/09/xmldsig#",
