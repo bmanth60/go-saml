@@ -39,7 +39,7 @@ func (r *Response) Validate(s *Settings) error {
 		return errors.New("subject recipient mismatch, expected: " + s.SP.AssertionConsumerServiceURL + " not " + r.Assertion.Subject.SubjectConfirmation.SubjectConfirmationData.Recipient)
 	}
 
-	err := packager.VerifyWithCert(r.originalString, s.IDP.publicCert)
+	err := packager.VerifyWithCert(r.originalString, s.IDPPublicCert())
 	if err != nil {
 		return err
 	}

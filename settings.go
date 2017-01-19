@@ -1,9 +1,9 @@
 package saml
 
 import (
+	"encoding/base64"
+	"encoding/pem"
 	"io/ioutil"
-
-	"github.com/bmanth60/go-saml/util"
 )
 
 //Settings to configure saml properties for
@@ -36,8 +36,8 @@ type ServiceProviderSettings struct {
 	SingleLogoutServiceURL      string
 	SignRequest                 bool
 
-	publicCert string
-	privateKey string
+	publicCert *pem.Block
+	privateKey *pem.Block
 }
 
 //IdentityProviderSettings to configure idp specific settings
@@ -49,7 +49,7 @@ type IdentityProviderSettings struct {
 	PublicCertString          string
 	NameIDFormat              string
 
-	publicCert string
+	publicCert *pem.Block
 }
 
 //Init settings and load configuration files as needed
@@ -61,16 +61,13 @@ func (s *Settings) Init() (err error) {
 	s.hasInit = true
 
 	if s.SP.SignRequest {
-		s.loadSPCertificate()
-	}
-
-	if s.IDP.PublicCertString != "" {
-		s.IDP.publicCert = util.LoadCertificateFromString(s.IDP.PublicCertString)
+		s.SP.privateKey = s.loadPEM("SP-Pivate Key", s.SP.PrivateKeyString, s.SP.PrivateKeyPath)
+		s.SP.publicCert = s.loadPEM("SP-Public Cert", s.SP.PublicCertString, s.SP.PublicCertPath)
+		s.IDP.publicCert = s.loadPEM("IDP-Public Cert", s.IDP.PublicCertString, s.IDP.PublicCertPath)
 	} else {
-		s.IDP.publicCert, err = util.LoadCertificate(s.IDP.PublicCertPath)
-		if err != nil {
-			panic(err)
-		}
+		s.SP.privateKey = &pem.Block{}
+		s.SP.publicCert = &pem.Block{}
+		s.SP.publicCert = &pem.Block{}
 	}
 
 	//Set the sp entity id to acs url if not found for
@@ -82,53 +79,51 @@ func (s *Settings) Init() (err error) {
 	return nil
 }
 
-//loadSPCertificate load service provider certificate into settings object
-func (s *Settings) loadSPCertificate() {
-	var err error
-
-	if s.SP.PublicCertString != "" {
-		s.SP.publicCert = util.LoadCertificateFromString(s.SP.PublicCertString)
+func (s *Settings) loadPEM(pemType string, pemString string, pemPath string) *pem.Block {
+	var block *pem.Block
+	if pemString != "" {
+		block, _ = pem.Decode([]byte(pemString))
 	} else {
-		s.SP.publicCert, err = util.LoadCertificate(s.SP.PublicCertPath)
-		if err != nil {
-			panic(err)
-		}
+		block = readPEMFile(pemPath)
 	}
 
-	if s.SP.PrivateKeyString != "" {
-		s.SP.privateKey = s.SP.PrivateKeyString
-	} else {
-		//Cannot use util.LoadCertificate here since it
-		//breaks the pem format
-		keyBytes, err := ioutil.ReadFile(s.SP.PrivateKeyPath)
-		if err != nil {
-			panic(err)
-		}
-
-		s.SP.privateKey = string(keyBytes)
+	if block == nil {
+		panic("Unable to load PEM: " + pemType)
 	}
+
+	return block
 }
 
-//SPPublicCert get loaded sp public certificate
+func readPEMFile(path string) *pem.Block {
+	bytes, err := ioutil.ReadFile(path)
+	if err != nil {
+		panic(err)
+	}
+
+	block, _ := pem.Decode(bytes)
+	return block
+}
+
+//SPPublicCert get loaded sp public certificate data
 func (s *Settings) SPPublicCert() string {
 	if !s.hasInit {
 		s.Init()
 	}
-	return s.SP.publicCert
+	return base64.StdEncoding.EncodeToString(s.SP.publicCert.Bytes)
 }
 
-//SPPrivateKey get loaded sp private key
+//SPPrivateKey get loaded sp private key in pem format
 func (s *Settings) SPPrivateKey() string {
 	if !s.hasInit {
 		s.Init()
 	}
-	return s.SP.privateKey
+	return string(pem.EncodeToMemory(s.SP.privateKey))
 }
 
-//IDPPublicCert get loaded idp public certificate
+//IDPPublicCert get loaded idp public certificate in pem format
 func (s *Settings) IDPPublicCert() string {
 	if !s.hasInit {
 		s.Init()
 	}
-	return s.IDP.publicCert
+	return string(pem.EncodeToMemory(s.IDP.publicCert))
 }
