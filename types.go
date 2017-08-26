@@ -20,6 +20,7 @@ type AuthnRequest struct {
 	AssertionConsumerServiceIndex  int                    `xml:"AssertionConsumerServiceIndex,attr"`
 	AttributeConsumingServiceIndex int                    `xml:"AttributeConsumingServiceIndex,attr"`
 	NameIDPolicy                   NameIDPolicy           `xml:"NameIDPolicy"`
+	IsPassive                      bool                   `xml:"IsPassive,attr"`
 	RequestedAuthnContext          *RequestedAuthnContext `xml:"RequestedAuthnContext,omitempty"`
 }
 
