@@ -35,6 +35,7 @@ type ServiceProviderSettings struct {
 	AssertionConsumerServiceURL string
 	SingleLogoutServiceURL      string
 	SignRequest                 bool
+	IsPassive                   bool
 
 	publicCert *pem.Block
 	privateKey *pem.Block

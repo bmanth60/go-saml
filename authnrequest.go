@@ -50,6 +50,7 @@ func ApplyAuthnRequest(s Settings, r *AuthnRequest) *AuthnRequest {
 	r.Issuer.URL = s.SP.EntityID
 	r.Signature.KeyInfo.X509Data.X509Certificate.Cert = s.SPPublicCert()
 	r.NameIDPolicy.Format = s.IDP.NameIDFormat
+	r.IsPassive = s.SP.IsPassive
 
 	if !s.SP.SignRequest {
 		r.SAMLSIG = ""
